@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Swarnim Pre-School Management System</title>
+    
+    <style>
+        :root {
+            --primary: #0f2b5c;
+            --accent: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #ca8a04;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+            color: #1e293b;
+        }
+
+        #loginScreen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 43, 92, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .login-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            width: 350px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .header {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .school-logo-img {
+            width: 55px;
+            height: 55px;
+            background: white;
+            border-radius: 50%;
+            padding: 2px;
+            box-sizing: border-box;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .header-title p {
+            font-size: 11px;
+            margin: 2px 0 0 0;
+            opacity: 0.85;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 15px auto;
+            padding: 0 12px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+
+        .tab-btn {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            color: #475569;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 8px;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+        @media (max-width: 640px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 13px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 9px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .btn-warning { background: var(--warning); color: #000; }
+        .btn-print { background: #475569; color: white; }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        th { background: #f1f5f9; color: var(--primary); font-weight: 700; }
+
+        .status-present { background-color: #dcfce7; color: #15803d; font-weight: bold; }
+        .status-absent { background-color: #fee2e2; color: #b91c1c; font-weight: bold; }
+
+        .hidden { display: none !important; }
+
+        .export-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .clickable-name {
+            color: var(--accent);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .clickable-name:hover {
+            color: var(--primary);
+        }
+
+        /* MODAL POPUP STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 650px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        /* PRINT MEDIA STYLES */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .printable-area, .printable-area * {
+                visibility: visible;
+            }
+            .printable-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PASSWORD LOGIN SCREEN -->
+    <div id="loginScreen">
+        <div class="login-card">
+            <svg style="width:70px; height:70px; margin:0 auto 10px auto; display:block;" viewBox="0 0 500 500">
+                <circle cx="250" cy="250" r="235" fill="#ffffff" stroke="#1d4ed8" stroke-width="14"/>
+                <path d="M 110 320 A 180 180 0 1 1 390 320" fill="none" stroke="#2563eb" stroke-width="16" stroke-linecap="round" stroke-dasharray="16, 12"/>
+                <path d="M 250 75 Q 285 130 250 210 Q 215 130 250 75 Z" fill="#2563eb"/>
+                <path d="M 235 150 Q 250 110 265 150 Q 250 185 235 150 Z" fill="#93c5fd"/>
+                <path d="M 220 210 L 280 210 L 265 245 L 235 245 Z" fill="#1d4ed8"/>
+                <path d="M 242 245 L 258 245 L 255 315 L 245 315 Z" fill="#0f2b5c"/>
+                <path d="M 185 285 L 238 265 L 238 340 L 185 362 Z" fill="#2563eb" stroke="#1d4ed8" stroke-width="4"/>
+                <path d="M 315 285 L 262 265 L 262 340 L 315 362 Z" fill="#2563eb" stroke="#1d4ed8" stroke-width="4"/>
+                <path d="M 60 385 L 440 385 L 470 440 L 415 440 L 250 415 L 85 440 L 30 440 Z" fill="#1d4ed8"/>
+                <path d="M 85 385 L 415 385 L 400 422 L 100 422 Z" fill="#1e40af"/>
+                <text x="250" y="412" font-size="36" fill="#ffffff" font-weight="900" text-anchor="middle" font-family="sans-serif">स्वर्णिम</text>
+            </svg>
+            <h2 style="color:var(--primary); margin:5px 0 15px 0; font-size:18px;">Swarnim Pre-School Login</h2>
+            <div style="text-align:left; margin-bottom:10px;">
+                <label>Select Role:</label>
+                <select id="loginRole">
+                    <option value="master">Main Master Admin</option>
+                    <option value="teacher">Teacher Portal</option>
+                </select>
+            </div>
+            <div style="text-align:left; margin-bottom:15px;">
+                <label>Enter Password:</label>
+                <input type="password" id="loginPasswordInput" placeholder="Enter Password" onkeypress="if(event.key==='Enter') validateLogin()">
+            </div>
+            <button class="btn btn-success" style="width:100%; padding:10px;" onclick="validateLogin()">Login to Portal</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-brand">
+            <svg class="school-logo-img" viewBox="0 0 500 500">
+                <circle cx="250" cy="250" r="235" fill="#ffffff" stroke="#1d4ed8" stroke-width="14"/>
+                <path d="M 110 320 A 180 180 0 1 1 390 320" fill="none" stroke="#2563eb" stroke-width="16" stroke-linecap="round" stroke-dasharray="16, 12"/>
+                <path d="M 250 75 Q 285 130 250 210 Q 215 130 250 75 Z" fill="#2563eb"/>
+                <path d="M 235 150 Q 250 110 265 150 Q 250 185 235 150 Z" fill="#93c5fd"/>
+                <path d="M 220 210 L 280 210 L 265 245 L 235 245 Z" fill="#1d4ed8"/>
+                <path d="M 242 245 L 258 245 L 255 315 L 245 315 Z" fill="#0f2b5c"/>
+                <path d="M 185 285 L 238 265 L 238 340 L 185 362 Z" fill="#2563eb" stroke="#1d4ed8" stroke-width="4"/>
+                <path d="M 315 285 L 262 265 L 262 340 L 315 362 Z" fill="#2563eb" stroke="#1d4ed8" stroke-width="4"/>
+                <path d="M 60 385 L 440 385 L 470 440 L 415 440 L 250 415 L 85 440 L 30 440 Z" fill="#1d4ed8"/>
+                <path d="M 85 385 L 415 385 L 400 422 L 100 422 Z" fill="#1e40af"/>
+                <text x="250" y="412" font-size="36" fill="#ffffff" font-weight="900" text-anchor="middle" font-family="sans-serif">स्वर्णिम</text>
+            </svg>
+
+            <div class="header-title">
+                <h1>Swarnim Pre-School (स्वर्णिम प्रि-स्कुल)</h1>
+                <p>Salleri-5, Solukhumbu, Nepal • Digital Management System</p>
+            </div>
+        </div>
+        <div>
+            <button class="btn btn-danger" style="padding:6px 12px; font-size:11px;" onclick="logoutSession()">Logout / लकआउट</button>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- Nepali Date Bar -->
+        <div class="card" style="background: #eff6ff; border-color: #bfdbfe;">
+            <div class="grid-3" style="align-items: center;">
+                <div>
+                    <label>नेपाली साल (Year):</label>
+                    <select id="nepYearSelect" onchange="onDateChange()"></select>
+                </div>
+                <div>
+                    <label>नेपाली महिना (Month):</label>
+                    <select id="nepMonthSelect" onchange="onDateChange()">
+                        <option value="०१">वैशाख (०१)</option>
+                        <option value="०२">जेठ (०२)</option>
+                        <option value="०३">असार (०३)</option>
+                        <option value="०४">साउन (०४)</option>
+                        <option value="०५">भदौ (०५)</option>
+                        <option value="०६">असोज (०६)</option>
+                        <option value="०७" selected>कार्तिक (०७)</option>
+                        <option value="०८">मंसिर (०८)</option>
+                        <option value="०९">पुष (०९)</option>
+                        <option value="१०">माघ (१०)</option>
+                        <option value="११">फागुन (११)</option>
+                        <option value="१२">चैत (१२)</option>
+                    </select>
+                </div>
+                <div>
+                    <label>नेपाली गते (Gate/Day in Devanagari):</label>
+                    <select id="nepGateSelect" onchange="onDateChange()"></select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs" id="navTabsContainer">
+            <button class="tab-btn active" id="btn_attTab" onclick="showTab('attTab', this)">1. Daily Attendance / हाजिरी</button>
+            <button class="tab-btn" id="btn_healthTab" onclick="showTab('healthTab', this)">2. Health, Lunch & Incident</button>
+            <button class="tab-btn" id="btn_casTab" onclick="showTab('casTab', this)">3. CAS Performance & GPA</button>
+            <button class="tab-btn" id="btn_dirTab" onclick="showTab('dirTab', this)">4. Student Directory / दर्ता</button>
+            <button class="tab-btn" id="btn_exportTab" onclick="showTab('exportTab', this)">5. Multi-Filter Data Export</button>
+            <button class="tab-btn" id="btn_settingsTab" onclick="showTab('settingsTab', this)">6. Admin Settings / Password</button>
+        </div>
+
+        <!-- TAB 1: DAILY ATTENDANCE -->
+        <div id="attTab" class="tab-content">
+            <div class="card" id="attCardPrintArea">
+                <h3 class="card-title">📝 Class-wise Daily Attendance</h3>
+                <div class="grid-2" style="margin-bottom:12px;">
+                    <div>
+                        <label>Select Class for Attendance:</label>
+                        <select id="attClassFilter" onchange="renderAttendanceList()">
+                            <option value="UKG">UKG</option>
+                            <option value="PG">PlayGroup (PG)</option>
+                            <option value="Nursery">Nursery</option>
+                            <option value="LKG">LKG</option>
+                            <option value="One">Grade One (1)</option>
+                            <option value="Two">Grade Two (2)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll</th>
+                                <th>Student Name</th>
+                                <th>Attendance Status</th>
+                                <th>This Month Summary</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody"></tbody>
+                    </table>
+                </div>
+                <div style="margin-top:12px; display:flex; gap:10px;">
+                    <button class="btn btn-success" onclick="saveAttendance()">Save Class Attendance</button>
+                    <button class="btn btn-print" onclick="printTabReport('attCardPrintArea', 'Daily Attendance Sheet')">🖨️ Print Daily Attendance</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: HEALTH & LUNCH TRACKER -->
+        <div id="healthTab" class="tab-content hidden">
+            <div class="card" id="healthCardPrintArea">
+                <h3 class="card-title">🏥 Daily Health, 2-Times Lunch & Incident Tracker</h3>
+                <div class="grid-2" style="margin-bottom:12px;">
+                    <div>
+                        <label>Select Class:</label>
+                        <select id="healthClassFilter" onchange="renderHealthList()">
+                            <option value="UKG">UKG</option>
+                            <option value="PG">PG</option>
+                            <option value="Nursery">Nursery</option>
+                            <option value="LKG">LKG</option>
+                            <option value="One">Grade One</option>
+                            <option value="Two">Grade Two</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll & Name</th>
+                                <th>Uniform</th>
+                                <th>Nails/Hair</th>
+                                <th>Bottle</th>
+                                <th>1st Lunch</th>
+                                <th>2nd Lunch</th>
+                                <th>Incident</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="healthTableBody"></tbody>
+                    </table>
+                </div>
+                <div style="margin-top:12px; display:flex; gap:10px;">
+                    <button class="btn btn-success" onclick="saveHealthData()">Save Health & Lunch Logs</button>
+                    <button class="btn btn-print" onclick="printTabReport('healthCardPrintArea', 'Daily Health & Lunch Tracker')">🖨️ Print Health & Lunch Sheet</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: CAS PERFORMANCE & GPA -->
+        <div id="casTab" class="tab-content hidden">
+            <div class="card" id="casCardPrintArea">
+                <h3 class="card-title">📊 CAS Evaluation & Nepal GPA Calculator (Scale 1-4)</h3>
+                
+                <!-- Class Subjects Manager -->
+                <div class="no-print" style="background:#f1f5f9; padding:12px; border-radius:8px; margin-bottom:15px;">
+                    <label><b>📚 Class Subjects Management (कक्षा अनुसार विषय थप्नुहोस्/हटाउनुहोस्):</b></label>
+                    <div style="display:flex; gap:8px; margin-top:5px;">
+                        <input type="text" id="newSubjectName" placeholder="Add New Subject (e.g. English, Math)" style="max-width:250px;">
+                        <button class="btn" onclick="addSubjectToClass()">+ Add Subject</button>
+                    </div>
+                    <div id="classListSubjects" style="margin-top:8px; font-size:12px;"></div>
+                </div>
+
+                <div class="grid-2" style="margin-bottom:12px;">
+                    <div>
+                        <label>Select Class:</label>
+                        <select id="casClassFilter" onchange="renderCasList()">
+                            <option value="UKG">UKG</option>
+                            <option value="PG">PG</option>
+                            <option value="Nursery">Nursery</option>
+                            <option value="LKG">LKG</option>
+                            <option value="One">Grade One</option>
+                            <option value="Two">Grade Two</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="no-print" style="font-size:11px; color:#64748b; margin-top:-5px;">* नोट: विषय अनुसार अङ्क हाल्न विद्यार्थीको नाम (Name) मा क्लिक गर्नुहोस्।</p>
+                
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll & Name (Click Name for Subjects)</th>
+                                <th>Classwork (Avg)</th>
+                                <th>Homework (Avg)</th>
+                                <th>Extra Activities (Avg)</th>
+                                <th>Total %</th>
+                                <th>GPA & Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody id="casTableBody"></tbody>
+                    </table>
+                </div>
+                <div style="margin-top:12px; display:flex; gap:10px;">
+                    <button class="btn btn-success" onclick="saveCasData()">Save CAS Evaluation</button>
+                    <button class="btn btn-print" onclick="printTabReport('casCardPrintArea', 'Classwise CAS Evaluation Summary')">🖨️ Print Class Grade Sheet</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: STUDENT DIRECTORY (Admin Only) -->
+        <div id="dirTab" class="tab-content hidden">
+            <div class="card" id="regCard">
+                <h3 class="card-title" id="formCardTitle">➕ Register New Student Profile</h3>
+                <input type="hidden" id="editStudentId" value="">
+                <div class="grid-3">
+                    <div>
+                        <label>Student Full Name:</label>
+                        <input type="text" id="regName" placeholder="Full Name">
+                    </div>
+                    <div>
+                        <label>Class (कक्षा):</label>
+                        <select id="regClass">
+                            <option value="PG">PlayGroup (PG)</option>
+                            <option value="Nursery">Nursery</option>
+                            <option value="LKG">LKG</option>
+                            <option value="UKG" selected>UKG</option>
+                            <option value="One">Grade One (1)</option>
+                            <option value="Two">Grade Two (2)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Roll Number:</label>
+                        <input type="text" id="regRoll" placeholder="e.g. 1">
+                    </div>
+                </div>
+                <div class="grid-3" style="margin-top:8px;">
+                    <div>
+                        <label>Date of Birth (DOB):</label>
+                        <input type="text" id="regDob" placeholder="2077-05-12">
+                    </div>
+                    <div>
+                        <label>Gender:</label>
+                        <select id="regGender">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Blood Group:</label>
+                        <input type="text" id="regBlood" placeholder="e.g. A+">
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top:8px;">
+                    <div>
+                        <label>Parent / Guardian Name:</label>
+                        <input type="text" id="regParent" placeholder="Parent Name">
+                    </div>
+                    <div>
+                        <label>Mobile Number:</label>
+                        <input type="text" id="regPhone" placeholder="98XXXXXXXX">
+                    </div>
+                </div>
+                <div style="margin-top:12px; display:flex; gap:10px;">
+                    <button class="btn btn-success" id="saveStudentBtn" onclick="registerStudent()">Save Student Profile</button>
+                    <button class="btn btn-warning hidden" id="cancelEditBtn" onclick="cancelEditStudent()">Cancel Edit</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">📋 Registered Student Directory (Edit & Manage)</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll</th>
+                                <th>Name</th>
+                                <th>Class</th>
+                                <th>Gender</th>
+                                <th>Parent Name</th>
+                                <th>Phone</th>
+                                <th>Blood</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: MULTI-FILTER DATA EXPORT -->
+        <div id="exportTab" class="tab-content hidden">
+            <div class="card">
+                <h3 class="card-title">📥 Multi-Filter CSV Data Export</h3>
+                <div class="export-box">
+                    <label style="font-size:14px; color:var(--primary);"><b>Export Option Select Karein:</b></label>
+                    <select id="exportTypeSelect" onchange="toggleExportOptions()" style="font-size:14px; font-weight:bold; padding:8px;">
+                        <option value="class">1. Class-wise Export</option>
+                        <option value="month">2. Month-wise Export</option>
+                        <option value="day">3. Day-wise Export</option>
+                        <option value="student">4. Individual Student-wise Export</option>
+                        <option value="master">5. Full Master Export</option>
+                    </select>
+                </div>
+
+                <div class="grid-2" style="margin-top:15px;">
+                    <div id="exportClassGroup">
+                        <label>कक्षा छान्नुहोस्:</label>
+                        <select id="exportClassSelect">
+                            <option value="PG">PlayGroup (PG)</option>
+                            <option value="Nursery">Nursery</option>
+                            <option value="LKG">LKG</option>
+                            <option value="UKG" selected>UKG</option>
+                            <option value="One">Grade One (1)</option>
+                            <option value="Two">Grade Two (2)</option>
+                        </select>
+                    </div>
+
+                    <div id="exportMonthGroup" class="hidden">
+                        <label>महिना छान्नुहोस्:</label>
+                        <select id="exportMonthSelect">
+                            <option value="०१">वैशाख (०१)</option>
+                            <option value="०२">जेठ (०२)</option>
+                            <option value="०३">असार (०३)</option>
+                            <option value="०४">साउन (०४)</option>
+                            <option value="०५">भदौ (०५)</option>
+                            <option value="०६">असोज (०६)</option>
+                            <option value="०७" selected>कार्तिक (०७)</option>
+                            <option value="०८">मंसिर (०८)</option>
+                            <option value="०९">पुष (०९)</option>
+                            <option value="१०">माघ (१०)</option>
+                            <option value="११">फागुन (११)</option>
+                            <option value="१२">चैत (१२)</option>
+                        </select>
+                    </div>
+
+                    <div id="exportDayGroup" class="hidden">
+                        <label>गते छान्नुहोस्:</label>
+                        <select id="exportDaySelect"></select>
+                    </div>
+
+                    <div id="exportStudentGroup" class="hidden">
+                        <label>विद्यार्थीको नाम छान्नुहोस्:</label>
+                        <select id="exportStudentSelect"></select>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" style="margin-top:20px; font-size:15px; padding:12px 24px;" onclick="runCustomExport()">📥 Download Selected CSV Report</button>
+            </div>
+        </div>
+
+        <!-- TAB 6: ADMIN SETTINGS & PASSWORD CHANGE -->
+        <div id="settingsTab" class="tab-content hidden">
+            <div class="card">
+                <h3 class="card-title">🔐 Main Master Admin Password Management</h3>
+                <div class="grid-2" style="max-width:500px;">
+                    <div>
+                        <label>New Master Password:</label>
+                        <input type="password" id="newMasterPwd" placeholder="Enter new password">
+                    </div>
+                </div>
+                <button class="btn btn-success" style="margin-top:12px;" onclick="updateMasterPassword()">Update Admin Password</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- STUDENT SUBJECT MARKS MODAL POPUP -->
+    <div id="studentSubjectModal" class="modal-overlay hidden">
+        <div class="modal-content" id="modalPrintArea">
+            <h3 id="modalStudentTitle" style="color:var(--primary); margin-top:0;">Subject Evaluation</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Classwork (1-4)</th>
+                            <th>Homework (1-4)</th>
+                            <th>Extra Activity (1-4)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalSubjectBody"></tbody>
+                </table>
+            </div>
+            <div style="margin-top:15px; text-align:right; display:flex; justify-content:flex-end; gap:8px;" class="no-print">
+                <button class="btn btn-danger" onclick="closeStudentModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveStudentModalMarks(false)">Save Marks</button>
+                <button class="btn btn-print" onclick="saveStudentModalMarks(true)">🖨️ Save & Print Grade Sheet</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const finalYears = ["२०८०", "२०८१", "२०८२", "२०८३", "२०८४", "२०८५", "२०८६", "२०८७", "२०८८", "२०८९", "२०९०", "२०९१", "२०९२", "२०९३", "२०९४", "२०९५", "२०९६", "२०९७", "२०९८", "२०९९"];
+        const actualDevDigits = ['०', '०१', '०२', '०३', '०४', '०५', '०६', '०७', '०८', '०९', '१०', '११', '१२', '१३', '१४', '१५', '१६', '१७', '१८', '१९', '२०', '२१', '२२', '२३', '२४', '२५', '२६', '२७', '२८', '२९', '३०', '३१', '३२'];
+
+        let currentUserRole = null;
+        let masterPassword = localStorage.getItem('swarnim_master_pwd') || "swarnim123";
+        let teacherPassword = "teacher123";
+
+        let students = JSON.parse(localStorage.getItem('swarnim_pwa_students')) || [
+            { id: 1, name: "Pasang Lhamu Sherpa", class: "UKG", roll: "1", dob: "2077-02-10", gender: "Female", blood: "A+", parent: "Mingma Sherpa", phone: "9842854321" },
+            { id: 2, name: "Aarav Karki", class: "UKG", roll: "2", dob: "2077-04-15", gender: "Male", blood: "B+", parent: "Ramesh Karki", phone: "9812345678" }
+        ];
+
+        let records = JSON.parse(localStorage.getItem('swarnim_pwa_records')) || {};
+        
+        let classSubjects = JSON.parse(localStorage.getItem('swarnim_class_subjects')) || {
+            "UKG": ["English", "Nepali", "Maths", "Science"],
+            "PG": ["Rhymes & Drawing", "English Oral"],
+            "Nursery": ["English", "Nepali", "Maths"],
+            "LKG": ["English", "Nepali", "Maths", "GK"],
+            "One": ["English", "Nepali", "Maths", "Science", "Social"],
+            "Two": ["English", "Nepali", "Maths", "Science", "Social"]
+        };
+
+        let currentActiveStudentId = null;
+
+        window.onload = function() {
+            populateYearSelect();
+            populateGateSelect();
+            renderStudentsTable();
+            populateStudentExportDropdown();
+            toggleExportOptions();
+        };
+
+        function populateYearSelect() {
+            const ySel = document.getElementById('nepYearSelect');
+            if(ySel) {
+                ySel.innerHTML = "";
+                finalYears.forEach(y => {
+                    ySel.innerHTML += `<option value="${y}" ${y==='२०८३'?'selected':''}>${y}</option>`;
+                });
+            }
+        }
+
+        function validateLogin() {
+            const role = document.getElementById('loginRole').value;
+            const pwd = document.getElementById('loginPasswordInput').value;
+
+            if(role === 'master') {
+                if(pwd === masterPassword) {
+                    currentUserRole = 'master';
+                    document.getElementById('loginScreen').style.display = 'none';
+                    applyRolePermissions();
+                } else {
+                    alert("Incorrect Master Password! Default is: swarnim123");
+                }
+            } else if(role === 'teacher') {
+                if(pwd === teacherPassword) {
+                    currentUserRole = 'teacher';
+                    document.getElementById('loginScreen').style.display = 'none';
+                    applyRolePermissions();
+                } else {
+                    alert("Incorrect Teacher Password! Default is: teacher123");
+                }
+            }
+        }
+
+        function logoutSession() {
+            currentUserRole = null;
+            document.getElementById('loginPasswordInput').value = "";
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+
+        function applyRolePermissions() {
+            const dirBtn = document.getElementById('btn_dirTab');
+            const exportBtn = document.getElementById('btn_exportTab');
+            const settingsBtn = document.getElementById('btn_settingsTab');
+
+            if(currentUserRole === 'teacher') {
+                if(dirBtn) dirBtn.classList.add('hidden');
+                if(exportBtn) exportBtn.classList.add('hidden');
+                if(settingsBtn) settingsBtn.classList.add('hidden');
+            } else {
+                if(dirBtn) dirBtn.classList.remove('hidden');
+                if(exportBtn) exportBtn.classList.remove('hidden');
+                if(settingsBtn) settingsBtn.classList.remove('hidden');
+            }
+            showTab('attTab', document.getElementById('btn_attTab'));
+        }
+
+        function updateMasterPassword() {
+            const np = document.getElementById('newMasterPwd').value;
+            if(!np) { alert("Please enter a new password"); return; }
+            masterPassword = np;
+            localStorage.setItem('swarnim_master_pwd', masterPassword);
+            alert("Master Admin Password Updated Successfully!");
+            document.getElementById('newMasterPwd').value = "";
+        }
+
+        function populateGateSelect() {
+            const gateSel = document.getElementById('nepGateSelect');
+            const expGateSel = document.getElementById('exportDaySelect');
+            if(gateSel) gateSel.innerHTML = "";
+            if(expGateSel) expGateSel.innerHTML = "";
+            for(let i=1; i<=32; i++) {
+                let digitStr = actualDevDigits[i];
+                if(gateSel) gateSel.innerHTML += `<option value="${digitStr}" ${i===18?'selected':''}>${digitStr} गते</option>`;
+                if(expGateSel) expGateSel.innerHTML += `<option value="${digitStr}" ${i===18?'selected':''}>${digitStr} गते</option>`;
+            }
+        }
+
+        function getSelectedDateKey() {
+            const y = document.getElementById('nepYearSelect').value;
+            const m = document.getElementById('nepMonthSelect').value;
+            const g = document.getElementById('nepGateSelect').value;
+            return `${y}-${m}-${g}`;
+        }
+
+        function onDateChange() {
+            renderAttendanceList();
+            renderHealthList();
+            renderCasList();
+        }
+
+        function showTab(tabId, btnEl) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            const target = document.getElementById(tabId);
+            if(target) target.classList.remove('hidden');
+            if(btnEl) btnEl.classList.add('active');
+
+            if(tabId === 'attTab') renderAttendanceList();
+            if(tabId === 'healthTab') renderHealthList();
+            if(tabId === 'casTab') renderCasList();
+        }
+
+        function registerStudent() {
+            const name = document.getElementById('regName').value;
+            const cls = document.getElementById('regClass').value;
+            const roll = document.getElementById('regRoll').value;
+            const phone = document.getElementById('regPhone').value;
+            const editId = document.getElementById('editStudentId').value;
+
+            if(!name || !phone) { alert("Student Name and Phone are required!"); return; }
+
+            if(editId) {
+                let s = students.find(item => item.id == editId);
+                if(s) {
+                    s.name = name;
+                    s.class = cls;
+                    s.roll = roll;
+                    s.dob = document.getElementById('regDob').value;
+                    s.gender = document.getElementById('regGender').value;
+                    s.blood = document.getElementById('regBlood').value;
+                    s.parent = document.getElementById('regParent').value;
+                    s.phone = phone;
+                }
+                document.getElementById('editStudentId').value = "";
+                document.getElementById('formCardTitle').innerText = "➕ Register New Student Profile";
+                document.getElementById('saveStudentBtn').innerText = "Save Student Profile";
+                document.getElementById('cancelEditBtn').classList.add('hidden');
+            } else {
+                const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
+                students.push({
+                    id: newId,
+                    name: name,
+                    class: cls,
+                    roll: roll,
+                    dob: document.getElementById('regDob').value,
+                    gender: document.getElementById('regGender').value,
+                    blood: document.getElementById('regBlood').value,
+                    parent: document.getElementById('regParent').value,
+                    phone: phone
+                });
+            }
+
+            localStorage.setItem('swarnim_pwa_students', JSON.stringify(students));
+            renderStudentsTable();
+            populateStudentExportDropdown();
+            clearStudentForm();
+            alert("Student Profile Saved Successfully!");
+        }
+
+        function clearStudentForm() {
+            document.getElementById('regName').value = "";
+            document.getElementById('regRoll').value = "";
+            document.getElementById('regDob').value = "";
+            document.getElementById('regBlood').value = "";
+            document.getElementById('regParent').value = "";
+            document.getElementById('regPhone').value = "";
+        }
+
+        function renderStudentsTable() {
+            const tbody = document.getElementById('studentTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = "";
+            students.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${s.roll || ''}</td>
+                        <td><b>${s.name}</b></td>
+                        <td>${s.class}</td>
+                        <td>${s.gender || ''}</td>
+                        <td>${s.parent || ''}</td>
+                        <td>${s.phone || ''}</td>
+                        <td>${s.blood || ''}</td>
+                        <td>
+                            <button class="btn" style="padding:3px 8px; font-size:10px;" onclick="editStudent(${s.id})">Edit</button>
+                            <button class="btn btn-danger" style="padding:3px 8px; font-size:10px;" onclick="deleteStudent(${s.id})">Del</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function editStudent(id) {
+            let s = students.find(item => item.id == id);
+            if(!s) return;
+            document.getElementById('editStudentId').value = s.id;
+            document.getElementById('regName').value = s.name;
+            document.getElementById('regClass').value = s.class;
+            document.getElementById('regRoll').value = s.roll || '';
+            document.getElementById('regDob').value = s.dob || '';
+            document.getElementById('regGender').value = s.gender || 'Male';
+            document.getElementById('regBlood').value = s.blood || '';
+            document.getElementById('regParent').value = s.parent || '';
+            document.getElementById('regPhone').value = s.phone || '';
+            document.getElementById('formCardTitle').innerText = "✏️ Edit Student Profile";
+            document.getElementById('saveStudentBtn').innerText = "Update Profile";
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function cancelEditStudent() {
+            document.getElementById('editStudentId').value = "";
+            document.getElementById('formCardTitle').innerText = "➕ Register New Student Profile";
+            document.getElementById('saveStudentBtn').innerText = "Save Student Profile";
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+            clearStudentForm();
+        }
+
+        function deleteStudent(id) {
+            if(confirm("Are you sure you want to delete this student?")) {
+                students = students.filter(s => s.id != id);
+                localStorage.setItem('swarnim_pwa_students', JSON.stringify(students));
+                renderStudentsTable();
+                populateStudentExportDropdown();
+            }
+        }
+
+        function populateStudentExportDropdown() {
+            const sel = document.getElementById('exportStudentSelect');
+            if(!sel) return;
+            sel.innerHTML = "";
+            students.forEach(s => {
+                sel.innerHTML += `<option value="${s.id}">${s.name} (${s.class} - Roll: ${s.roll || 'N/A'})</option>`;
+            });
+        }
+
+        function toggleExportOptions() {
+            const type = document.getElementById('exportTypeSelect').value;
+            document.getElementById('exportClassGroup').classList.add('hidden');
+            document.getElementById('exportMonthGroup').classList.add('hidden');
+            document.getElementById('exportDayGroup').classList.add('hidden');
+            document.getElementById('exportStudentGroup').classList.add('hidden');
+
+            if(type === 'class') {
+                document.getElementById('exportClassGroup').classList.remove('hidden');
+            } else if(type === 'month') {
+                document.getElementById('exportClassGroup').classList.remove('hidden');
+                document.getElementById('exportMonthGroup').classList.remove('hidden');
+            } else if(type === 'day') {
+                document.getElementById('exportClassGroup').classList.remove('hidden');
+                document.getElementById('exportMonthGroup').classList.remove('hidden');
+                document.getElementById('exportDayGroup').classList.remove('hidden');
+            } else if(type === 'student') {
+                document.getElementById('exportStudentGroup').classList.remove('hidden');
+            }
+        }
+
+        function renderAttendanceList() {
+            const cls = document.getElementById('attClassFilter').value;
+            const tbody = document.getElementById('attendanceTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = "";
+            const classStudents = students.filter(s => s.class === cls);
+            const dateKey = getSelectedDateKey();
+            const currentMonthPrefix = dateKey.substring(0, 8);
+
+            classStudents.forEach(s => {
+                if(!records[dateKey]) records[dateKey] = {};
+                if(!records[dateKey][s.id]) records[dateKey][s.id] = { att: 'Present', rem: '' };
+                let st = records[dateKey][s.id].att;
+                let rm = records[dateKey][s.id].rem || '';
+
+                let monthPresentCount = 0;
+                let monthAbsentCount = 0;
+
+                for(let dKey in records) {
+                    if(dKey.startsWith(currentMonthPrefix)) {
+                        if(records[dKey][s.id]) {
+                            if(records[dKey][s.id].att === 'Absent') {
+                                monthAbsentCount++;
+                            } else {
+                                monthPresentCount++;
+                            }
+                        }
+                    }
+                }
+
+                let statusBgClass = st === 'Absent' ? 'status-absent' : 'status-present';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${s.roll || ''}</td>
+                        <td><b>${s.name}</b></td>
+                        <td>
+                            <select class="${statusBgClass}" onchange="updateAttStatus(${s.id}, this.value)">
+                                <option value="Present" ${st==='Present'?'selected':''}>🟢 Present</option>
+                                <option value="Absent" ${st==='Absent'?'selected':''}>🔴 Absent</option>
+                            </select>
+                        </td>
+                        <td>🟢 Present: ${monthPresentCount} | 🔴 Absent: ${monthAbsentCount}</td>
+                        <td><input type="text" value="${rm}" oninput="updateAttRem(${s.id}, this.value)" placeholder="Remarks"></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateAttStatus(id, val) {
+            const dateKey = getSelectedDateKey();
+            if(!records[dateKey]) records[dateKey] = {};
+            if(!records[dateKey][id]) records[dateKey][id] = { att: 'Present', rem: '' };
+            records[dateKey][id].att = val;
+            renderAttendanceList();
+        }
+
+        function updateAttRem(id, val) {
+            const dateKey = getSelectedDateKey();
+            if(!records[dateKey]) records[dateKey] = {};
+            if(!records[dateKey][id]) records[dateKey][id] = { att: 'Present', rem: '' };
+            records[dateKey][id].rem = val;
+        }
+
+        function saveAttendance() {
+            localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
+            alert("Attendance Saved Successfully!");
+        }
+
+        function renderHealthList() {
+            const cls = document.getElementById('healthClassFilter').value;
+            const tbody = document.getElementById('healthTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = "";
+            const classStudents = students.filter(s => s.class === cls);
+            const dateKey = getSelectedDateKey();
+
+            classStudents.forEach(s => {
+                if(!records[dateKey]) records[dateKey] = {};
+                if(!records[dateKey][s.id]) records[dateKey][s.id] = {};
+                let h = records[dateKey][s.id];
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${s.roll || ''}. ${s.name}</b></td>
+                        <td><input type="checkbox" ${h.uniform?'checked':''} onchange="updateHealthProp(${s.id}, 'uniform', this.checked)"></td>
+                        <td><input type="checkbox" ${h.nails?'checked':''} onchange="updateHealthProp(${s.id}, 'nails', this.checked)"></td>
+                        <td><input type="checkbox" ${h.bottle?'checked':''} onchange="updateHealthProp(${s.id}, 'bottle', this.checked)"></td>
+                        <td><input type="text" style="width:70px;" value="${h.l1||''}" oninput="updateHealthProp(${s.id}, 'l1', this.value)"></td>
+                        <td><input type="text" style="width:70px;" value="${h.l2||''}" oninput="updateHealthProp(${s.id}, 'l2', this.value)"></td>
+                        <td><input type="text" style="width:80px;" value="${h.inc||''}" oninput="updateHealthProp(${s.id}, 'inc', this.value)"></td>
+                        <td><input type="text" style="width:90px;" value="${h.hrem||''}" oninput="updateHealthProp(${s.id}, 'hrem', this.value)"></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateHealthProp(id, prop, val) {
+            const dateKey = getSelectedDateKey();
+            if(!records[dateKey]) records[dateKey] = {};
+            if(!records[dateKey][id]) records[dateKey][id] = {};
+            records[dateKey][id][prop] = val;
+        }
+
+        function saveHealthData() {
+            localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
+            alert("Health & Lunch Logs Saved Successfully!");
+        }
+
+        // SUBJECT MANAGEMENT FOR CAS
+        function renderClassSubjectsList() {
+            const cls = document.getElementById('casClassFilter').value;
+            const container = document.getElementById('classListSubjects');
+            if(!classSubjects[cls]) classSubjects[cls] = ["English", "Nepali", "Maths"];
+            
+            let html = `<b>Current Subjects for ${cls}:</b> `;
+            classSubjects[cls].forEach((sub, idx) => {
+                html += `<span style="background:#e2e8f0; padding:2px 8px; border-radius:12px; margin-right:5px; display:inline-block; margin-bottom:4px;">
+                    ${sub} <a href="#" onclick="removeSubjectFromClass('${cls}', ${idx})" style="color:red; font-weight:bold; text-decoration:none;">×</a>
+                </span>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function addSubjectToClass() {
+            const cls = document.getElementById('casClassFilter').value;
+            const subName = document.getElementById('newSubjectName').value.trim();
+            if(!subName) return;
+            if(!classSubjects[cls]) classSubjects[cls] = [];
+            if(!classSubjects[cls].includes(subName)) {
+                classSubjects[cls].push(subName);
+                localStorage.setItem('swarnim_class_subjects', JSON.stringify(classSubjects));
+                renderClassSubjectsList();
+                document.getElementById('newSubjectName').value = "";
+            }
+        }
+
+        function removeSubjectFromClass(cls, idx) {
+            if(confirm("Remove this subject from class?")) {
+                classSubjects[cls].splice(idx, 1);
+                localStorage.setItem('swarnim_class_subjects', JSON.stringify(classSubjects));
+                renderClassSubjectsList();
+            }
+        }
+
+        function renderCasList() {
+            const cls = document.getElementById('casClassFilter').value;
+            renderClassSubjectsList();
+            
+            const tbody = document.getElementById('casTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = "";
+            const classStudents = students.filter(s => s.class === cls);
+            const dateKey = getSelectedDateKey();
+
+            classStudents.forEach(s => {
+                if(!records[dateKey]) records[dateKey] = {};
+                if(!records[dateKey][s.id]) records[dateKey][s.id] = {};
+                let c = records[dateKey][s.id];
+                let subs = c.subjects || {};
+
+                let totalCW = 0, totalHW = 0, totalEA = 0, count = 0;
+                for(let subKey in subs) {
+                    if(subs[subKey].cw || subs[subKey].hw || subs[subKey].ea) {
+                        totalCW += parseFloat(subs[subKey].cw) || 0;
+                        totalHW += parseFloat(subs[subKey].hw) || 0;
+                        totalEA += parseFloat(subs[subKey].ea) || 0;
+                        count++;
+                    }
+                }
+
+                let avgCW = count > 0 ? (totalCW / count).toFixed(1) : (c.cw || "-");
+                let avgHW = count > 0 ? (totalHW / count).toFixed(1) : (c.hw || "-");
+                let avgEA = count > 0 ? (totalEA / count).toFixed(1) : (c.ea || "-");
+
+                let overallAvg = 0;
+                if(count > 0) {
+                    overallAvg = (totalCW + totalHW + totalEA) / (count * 3);
+                } else if(c.cw || c.hw || c.ea) {
+                    overallAvg = ((parseFloat(c.cw)||0) + (parseFloat(c.hw)||0) + (parseFloat(c.ea)||0)) / 3;
+                }
+
+                let percentage = "-";
+                let gpaGrade = "-";
+
+                if (overallAvg > 0) {
+                    percentage = ((overallAvg / 4) * 100).toFixed(1) + "%";
+
+                    if (overallAvg >= 3.6) gpaGrade = "3.6 - 4.0 (A+ Outstanding)";
+                    else if (overallAvg >= 3.2) gpaGrade = "3.2 - 3.6 (A Excellent)";
+                    else if (overallAvg >= 2.8) gpaGrade = "2.8 - 3.2 (B+ Very Good)";
+                    else if (overallAvg >= 2.4) gpaGrade = "2.4 - 2.8 (B Good)";
+                    else if (overallAvg >= 2.0) gpaGrade = "2.0 - 2.4 (C+ Satisfactory)";
+                    else if (overallAvg >= 1.6) gpaGrade = "1.6 - 2.0 (C Acceptable)";
+                    else if (overallAvg >= 1.2) gpaGrade = "1.2 - 1.6 (D Partially Acceptable)";
+                    else gpaGrade = "1.0 - 1.2 (E Insufficient)";
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${s.roll || ''}. <span class="clickable-name" onclick="openStudentSubjectModal(${s.id})">${s.name}</span></b></td>
+                        <td><input type="text" style="width:60px;" value="${avgCW}" readonly></td>
+                        <td><input type="text" style="width:60px;" value="${avgHW}" readonly></td>
+                        <td><input type="text" style="width:60px;" value="${avgEA}" readonly></td>
+                        <td><b>${percentage}</b></td>
+                        <td><b>${gpaGrade}</b></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // STUDENT SUBJECT MODAL FUNCTIONS
+        function openStudentSubjectModal(id) {
+            currentActiveStudentId = id;
+            let s = students.find(item => item.id == id);
+            if(!s) return;
+
+            const dateKey = getSelectedDateKey();
+            if(!records[dateKey]) records[dateKey] = {};
+            if(!records[dateKey][id]) records[dateKey][id] = {};
+            if(!records[dateKey][id].subjects) records[dateKey][id].subjects = {};
+
+            let studentSubData = records[dateKey][id].subjects;
+            let curClass = s.class;
+            let activeSubs = classSubjects[curClass] || ["English", "Nepali", "Maths"];
+
+            document.getElementById('modalStudentTitle').innerText = `Subject Marks: ${s.name} (${curClass}) - Date: ${dateKey}`;
+
+            let tbody = document.getElementById('modalSubjectBody');
+            tbody.innerHTML = "";
+
+            activeSubs.forEach(sub => {
+                let subObj = studentSubData[sub] || { cw: '', hw: '', ea: '' };
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${sub}</b></td>
+                        <td><input type="number" class="modal-cw" data-sub="${sub}" min="1" max="4" step="0.1" value="${subObj.cw||''}"></td>
+                        <td><input type="number" class="modal-hw" data-sub="${sub}" min="1" max="4" step="0.1" value="${subObj.hw||''}"></td>
+                        <td><input type="number" class="modal-ea" data-sub="${sub}" min="1" max="4" step="0.1" value="${subObj.ea||''}"></td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('studentSubjectModal').classList.remove('hidden');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentSubjectModal').classList.add('hidden');
+            currentActiveStudentId = null;
+        }
+
+        function saveStudentModalMarks(shouldPrint = false) {
+            if(!currentActiveStudentId) return;
+            const dateKey = getSelectedDateKey();
+
+            if(!records[dateKey]) records[dateKey] = {};
+            if(!records[dateKey][currentActiveStudentId]) records[dateKey][currentActiveStudentId] = {};
+            if(!records[dateKey][currentActiveStudentId].subjects) records[dateKey][currentActiveStudentId].subjects = {};
+
+            let subObj = records[dateKey][currentActiveStudentId].subjects;
+
+            document.querySelectorAll('#modalSubjectBody tr').forEach(row => {
+                let cwInp = row.querySelector('.modal-cw');
+                let hwInp = row.querySelector('.modal-hw');
+                let eaInp = row.querySelector('.modal-ea');
+
+                let subName = cwInp.getAttribute('data-sub');
+                subObj[subName] = {
+                    cw: cwInp.value,
+                    hw: hwInp.value,
+                    ea: eaInp.value
+                };
+            });
+
+            localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
+            renderCasList();
+
+            if(shouldPrint) {
+                printTabReport('modalPrintArea', 'Individual Student Grade Sheet');
+            } else {
+                alert("Student Subject Marks Saved!");
+                closeStudentModal();
+            }
+        }
+
+        function saveCasData() {
+            localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
+            alert("CAS Evaluation Saved Successfully!");
+        }
+
+        // PRINT REPORT UTILITY FUNCTION
+        function printTabReport(elementId, titleText) {
+            const element = document.getElementById(elementId);
+            if(!element) return;
+
+            const dateKey = getSelectedDateKey();
+            const printWindow = window.open('', '', 'height=700,width=900');
+            
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>${titleText} - Swarnim Pre-School</title>
+                    <style>
+                        body { font-family: sans-serif; padding: 20px; color: #1e293b; }
+                        h2 { margin: 0; color: #0f2b5c; }
+                        p { margin: 4px 0 15px 0; font-size: 13px; color: #475569; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+                        th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
+                        th { background-color: #f1f5f9; color: #0f2b5c; }
+                        input, select { border: none; background: transparent; font-weight: bold; font-size: 12px; }
+                        .no-print { display: none !important; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Swarnim Pre-School (स्वर्णिम प्रि-स्कुल)</h2>
+                    <p>Salleri-5, Solukhumbu, Nepal • Report: <b>${titleText}</b> | Date: <b>${dateKey}</b></p>
+                    <hr/>
+                    ${element.innerHTML}
+                </body>
+                </html>
+            `);
+
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+
+        function runCustomExport() {
+            const type = document.getElementById('exportTypeSelect').value;
+            let csvContent = "\uFEFF"; // UTF-8 BOM for proper text rendering
+
+            if(type === 'master') {
+                csvContent += "Name,Class,Roll,DOB,Gender,Blood,Parent,Phone\r\n";
+                students.forEach(s => {
+                    csvContent += `"${s.name}","${s.class}","${s.roll||''}","${s.dob||''}","${s.gender||''}","${s.blood||''}","${s.parent||''}","${s.phone||''}"\r\n`;
+                });
+            } else {
+                csvContent += "Student Name,Class,Date,Attendance,Remarks\r\n";
+                students.forEach(s => {
+                    for(let dateKey in records) {
+                        if(records[dateKey][s.id]) {
+                            let rec = records[dateKey][s.id];
+                            csvContent += `"${s.name}","${s.class}","${dateKey}","${rec.att||'Present'}","${rec.rem||''}"\r\n`;
+                        }
+                    }
+                });
+            }
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Swarnim_Export_${type}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            alert("CSV Report Downloaded Successfully!");
+        }
+    </script>
+</body>
+</html>
