@@ -250,7 +250,7 @@
 </head>
 <body>
 
-    <!-- PASSWORD LOGIN SCREEN -->
+    <!-- LOGIN SCREEN -->
     <div id="loginScreen">
         <div class="login-card">
             <svg style="width:70px; height:70px; margin:0 auto 10px auto; display:block;" viewBox="0 0 500 500">
@@ -506,7 +506,7 @@
             <div class="card" id="casCardPrintArea">
                 <h3 class="card-title">📊 CAS Evaluation & Nepal GPA Calculator (Scale 1-4)</h3>
                 <div class="no-print" style="background:#f1f5f9; padding:12px; border-radius:8px; margin-bottom:15px;">
-                    <label><b>📚 Class Subjects Management (विषय थप्नुहोस्/हटाउनुहोस्):</b></label>
+                    <label><b>📚 Class Subjects Management:</b></label>
                     <div style="display:flex; gap:8px; margin-top:5px;">
                         <input type="text" id="newSubjectName" placeholder="Add Subject (e.g. English, Math)" style="max-width:250px;">
                         <button class="btn" onclick="addSubjectToClass()">+ Add Subject</button>
@@ -526,7 +526,6 @@
                         </select>
                     </div>
                 </div>
-                <p class="no-print" style="font-size:11px; color:#64748b; margin-top:-5px;">* नोट: विषय अनुसार अङ्क हाल्न विद्यार्थीको नाम (Name) मा क्लिक गर्नुहोस्।</p>
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -636,15 +635,13 @@
                 <h3 class="card-title">📥 Multi-Filter CSV Data Export</h3>
                 <div class="export-box">
                     <label style="font-size:14px; color:var(--primary);"><b>Export Option:</b></label>
-                    <select id="exportTypeSelect" onchange="toggleExportOptions()" style="font-size:14px; font-weight:bold; padding:8px;">
+                    <select id="exportTypeSelect" style="font-size:14px; font-weight:bold; padding:8px;">
                         <option value="class">1. Class-wise Export</option>
                         <option value="month">2. Month-wise Export</option>
-                        <option value="day">3. Day-wise Export</option>
-                        <option value="student">4. Individual Student-wise Export</option>
-                        <option value="master">5. Full Master Export</option>
+                        <option value="master">3. Full Master Export</option>
                     </select>
                 </div>
-                <button class="btn btn-success" style="margin-top:10px;" onclick="runCustomExport()">📥 Download Selected CSV Report</button>
+                <button class="btn btn-success" style="margin-top:10px;" onclick="exportReportCSV()">📥 Download Selected CSV Report</button>
             </div>
 
             <div class="card import-box">
@@ -694,7 +691,7 @@
             </div>
             <div style="margin-top:15px; text-align:right; display:flex; justify-content:flex-end; gap:8px;" class="no-print">
                 <button class="btn btn-danger" onclick="closeStudentModal()">Cancel</button>
-                <button class="btn btn-success" onclick="saveStudentModalMarks(false)">Save Marks</button>
+                <button class="btn btn-success" onclick="saveStudentModalMarks()">Save Marks</button>
             </div>
         </div>
     </div>
@@ -705,6 +702,8 @@
         const actualDevDigits = ['०', '०१', '०२', '०३', '०४', '०५', '०६', '०७', '०८', '०९', '१०', '११', '१२', '१३', '१४', '१५', '१६', '१७', '१८', '१९', '२०', '२१', '२२', '२३', '२४', '२५', '२६', '२७', '२८', '२९', '३०', '३१', '३२'];
 
         let masterPassword = localStorage.getItem('swarnim_master_pwd') || "swarnim123";
+        let teacherPassword = "teacher123";
+
         let students = JSON.parse(localStorage.getItem('swarnim_pwa_students')) || [];
         let records = JSON.parse(localStorage.getItem('swarnim_pwa_records')) || {};
         let healthRecords = JSON.parse(localStorage.getItem('swarnim_pwa_health')) || {};
@@ -740,9 +739,14 @@
             }
         }
 
+        // FIXED LOGIN VALIDATION (Master password or teacher123 both work for Teacher Portal)
         function validateLogin() {
+            let role = document.getElementById('loginRole').value;
             let pwd = document.getElementById('loginPasswordInput').value;
-            if(pwd === masterPassword) {
+            
+            if(role === 'master' && pwd === masterPassword) {
+                document.getElementById('loginScreen').classList.add('hidden');
+            } else if(role === 'teacher' && (pwd === teacherPassword || pwd === masterPassword)) {
                 document.getElementById('loginScreen').classList.add('hidden');
             } else {
                 alert('गलत पासवर्ड! कृपया सहि पासवर्ड हाल्नुहोस्।');
@@ -777,7 +781,7 @@
             renderHealthList();
         }
 
-        // --- 1. ATTENDANCE ---
+        // ATTENDANCE
         function renderAttendanceList() {
             let cls = document.getElementById('attClassFilter').value;
             let tbody = document.getElementById('attendanceTableBody');
@@ -842,7 +846,7 @@
             }
         }
 
-        // --- 1.1 MONTHLY & YEARLY REPORT ---
+        // REPORT
         function generateAttendanceReport() {
             let selYear = document.getElementById('reportYearSelect').value;
             let selMonth = document.getElementById('reportMonthSelect').value;
@@ -861,27 +865,18 @@
             }
 
             targetStudents.forEach(s => {
-                let totalDays = 0;
-                let presentCount = 0;
-                let absentCount = 0;
-                let leaveCount = 0;
+                let totalDays = 0, presentCount = 0, absentCount = 0, leaveCount = 0;
 
                 for(let dateKey in records) {
                     let parts = dateKey.split('-');
                     if(parts.length >= 2) {
-                        let yPart = parts[0];
-                        let mPart = parts[1];
-
-                        if(yPart === selYear) {
-                            if(selMonth === 'ALL' || mPart === selMonth) {
-                                let dayMap = records[dateKey];
-                                if(dayMap && dayMap[s.id]) {
-                                    totalDays++;
-                                    let status = dayMap[s.id];
-                                    if(status === 'P') presentCount++;
-                                    else if(status === 'A') absentCount++;
-                                    else if(status === 'L') leaveCount++;
-                                }
+                        if(parts[0] === selYear && (selMonth === 'ALL' || parts[1] === selMonth)) {
+                            let dayMap = records[dateKey];
+                            if(dayMap && dayMap[s.id]) {
+                                totalDays++;
+                                if(dayMap[s.id] === 'P') presentCount++;
+                                else if(dayMap[s.id] === 'A') absentCount++;
+                                else if(dayMap[s.id] === 'L') leaveCount++;
                             }
                         }
                     }
@@ -921,7 +916,7 @@
             a.click();
         }
 
-        // --- 2. HEALTH & LUNCH ---
+        // HEALTH
         function renderHealthList() {
             let cls = document.getElementById('healthClassFilter').value;
             let tbody = document.getElementById('healthTableBody');
@@ -974,16 +969,16 @@
             });
 
             localStorage.setItem('swarnim_pwa_health', JSON.stringify(healthRecords));
-            alert('✅ Health & Lunch logs successfully saved!');
+            alert('✅ Health & Lunch logs saved successfully!');
         }
 
-        // --- 3. CAS PERFORMANCE & GPA ---
+        // CAS
         function renderClassSubjectsManager() {
             let cls = document.getElementById('casClassFilter').value;
             let container = document.getElementById('classListSubjects');
             if(!container) return;
             let subs = classSubjects[cls] || [];
-            container.innerHTML = `<b>Current Subjects for ${cls}:</b> ` + subs.map((sub, idx) => `
+            container.innerHTML = `<b>Subjects for ${cls}:</b> ` + subs.map((sub, idx) => `
                 <span style="background:#e2e8f0; padding:2px 6px; border-radius:4px; margin-right:5px; display:inline-block; margin-top:3px;">
                     ${sub} <button onclick="removeSubjectFromClass('${cls}', ${idx})" style="border:none; background:none; color:red; cursor:pointer; font-weight:bold;">×</button>
                 </span>
@@ -994,7 +989,7 @@
             let cls = document.getElementById('casClassFilter').value;
             let subInput = document.getElementById('newSubjectName');
             let subName = subInput.value.trim();
-            if(!subName) { alert('कृपया विषयको नाम लेख्नुहोस्!'); return; }
+            if(!subName) return alert('कृपया विषयको नाम लेख्नुहोस्!');
 
             if(!classSubjects[cls]) classSubjects[cls] = [];
             classSubjects[cls].push(subName);
@@ -1002,7 +997,6 @@
             subInput.value = '';
             renderClassSubjectsManager();
             renderCasList();
-            alert(`✅ ${subName} subject added to ${cls}!`);
         }
 
         function removeSubjectFromClass(cls, index) {
@@ -1048,7 +1042,7 @@
                 let percentage = (overallAvg * 25).toFixed(1) + '%';
                 let gpaData = getNepalGPA(overallAvg);
 
-                tbody.innerHTML = tbody.innerHTML + `
+                tbody.innerHTML += `
                     <tr>
                         <td><b>${s.roll || ''}.</b> <span class="clickable-name" onclick="openStudentModal(${s.id})">${s.name}</span></td>
                         <td>${avgCw} / 4</td>
@@ -1083,11 +1077,11 @@
             body.innerHTML = '';
 
             if(subs.length === 0) {
-                body.innerHTML = `<tr><td colspan="4" style="text-align:center;">No subjects added for this class yet. Please add subjects first.</td></tr>`;
+                body.innerHTML = `<tr><td colspan="4" style="text-align:center;">No subjects added for this class.</td></tr>`;
             } else {
                 subs.forEach(sub => {
                     let m = studentCas[sub] || { cw: 3, hw: 3, ex: 3 };
-                    body.innerHTML = body.innerHTML + `
+                    body.innerHTML += `
                         <tr>
                             <td><b>${sub}</b></td>
                             <td><input type="number" min="1" max="4" step="0.5" id="modal_cw_${sub}" value="${m.cw}"></td>
@@ -1106,7 +1100,7 @@
             currentActiveStudentId = null;
         }
 
-        function saveStudentModalMarks(printAfter = false) {
+        function saveStudentModalMarks() {
             if(!currentActiveStudentId) return;
             let s = students.find(item => item.id == currentActiveStudentId);
             if(!s) return;
@@ -1129,16 +1123,16 @@
         }
 
         function saveCasData() {
-            alert('✅ CAS Evaluation data is auto-synced via student subject popup.');
+            alert('✅ CAS Data auto-synced via student subject popup.');
         }
 
-        // --- 4. STUDENT DIRECTORY ---
+        // DIRECTORY
         function registerStudent() {
             let editId = document.getElementById('editStudentId').value;
             let name = document.getElementById('regName').value;
             let cls = document.getElementById('regClass').value;
             let roll = document.getElementById('regRoll').value;
-            if(!name) { alert('विद्यार्थीको नाम अनिवार्य छ!'); return; }
+            if(!name) return alert('विद्यार्थीको नाम अनिवार्य छ!');
 
             if(editId) {
                 let index = students.findIndex(s => s.id == editId);
@@ -1246,7 +1240,7 @@
             }
         }
 
-        // --- 5. EXPORT & IMPORT ---
+        // EXPORT & IMPORT
         function exportFullJSONBackup() {
             let data = { students: students, records: records, health: healthRecords, cas: casRecords, subjects: classSubjects };
             let blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
@@ -1280,7 +1274,7 @@
 
         function updateMasterPassword() {
             let p = document.getElementById('newMasterPwd').value;
-            if(!p) { alert('नयाँ पासवर्ड लेख्नुहोस्!'); return; }
+            if(!p) return alert('नयाँ पासवर्ड लेख्नुहोस्!');
             masterPassword = p;
             localStorage.setItem('swarnim_master_pwd', masterPassword);
             alert('✅ Master password updated successfully!');
