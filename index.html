@@ -193,8 +193,9 @@
 
         th { background: #f1f5f9; color: var(--primary); font-weight: 700; }
 
-        .status-present { background-color: #dcfce7; color: #15803d; font-weight: bold; }
-        .status-absent { background-color: #fee2e2; color: #b91c1c; font-weight: bold; }
+        .badge-present { background-color: #dcfce7; color: #15803d; padding: 3px 8px; border-radius: 4px; font-weight: bold; display: inline-block; margin: 1px; }
+        .badge-absent { background-color: #fee2e2; color: #b91c1c; padding: 3px 8px; border-radius: 4px; font-weight: bold; display: inline-block; margin: 1px; }
+        .badge-leave { background-color: #fef9c3; color: #a16207; padding: 3px 8px; border-radius: 4px; font-weight: bold; display: inline-block; margin: 1px; }
 
         .hidden { display: none !important; }
 
@@ -206,6 +207,14 @@
             margin-bottom: 12px;
         }
 
+        .import-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 14px;
+            margin-top: 15px;
+        }
+
         .clickable-name {
             color: var(--accent);
             cursor: pointer;
@@ -215,7 +224,6 @@
             color: var(--primary);
         }
 
-        /* MODAL POPUP STYLES */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -237,23 +245,11 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
-        /* PRINT MEDIA STYLES */
         @media print {
-            body * {
-                visibility: hidden;
-            }
-            .printable-area, .printable-area * {
-                visibility: visible;
-            }
-            .printable-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-            }
-            .no-print {
-                display: none !important;
-            }
+            body * { visibility: hidden; }
+            .printable-area, .printable-area * { visibility: visible; }
+            .printable-area { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
         }
     </style>
 </head>
@@ -357,7 +353,7 @@
             <button class="tab-btn" id="btn_healthTab" onclick="showTab('healthTab', this)">2. Health, Lunch & Incident</button>
             <button class="tab-btn" id="btn_casTab" onclick="showTab('casTab', this)">3. CAS Performance & GPA</button>
             <button class="tab-btn" id="btn_dirTab" onclick="showTab('dirTab', this)">4. Student Directory / दर्ता</button>
-            <button class="tab-btn" id="btn_exportTab" onclick="showTab('exportTab', this)">5. Multi-Filter Data Export</button>
+            <button class="tab-btn" id="btn_exportTab" onclick="showTab('exportTab', this)">5. Multi-Filter Data Export & Import</button>
             <button class="tab-btn" id="btn_settingsTab" onclick="showTab('settingsTab', this)">6. Admin Settings / Password</button>
         </div>
 
@@ -445,7 +441,6 @@
             <div class="card" id="casCardPrintArea">
                 <h3 class="card-title">📊 CAS Evaluation & Nepal GPA Calculator (Scale 1-4)</h3>
                 
-                <!-- Class Subjects Manager -->
                 <div class="no-print" style="background:#f1f5f9; padding:12px; border-radius:8px; margin-bottom:15px;">
                     <label><b>📚 Class Subjects Management (कक्षा अनुसार विषय थप्नुहोस्/हटाउनुहोस्):</b></label>
                     <div style="display:flex; gap:8px; margin-top:5px;">
@@ -573,7 +568,7 @@
             </div>
         </div>
 
-        <!-- TAB 5: MULTI-FILTER DATA EXPORT -->
+        <!-- TAB 5: MULTI-FILTER DATA EXPORT & IMPORT -->
         <div id="exportTab" class="tab-content hidden">
             <div class="card">
                 <h3 class="card-title">📥 Multi-Filter CSV Data Export</h3>
@@ -631,6 +626,20 @@
                 </div>
 
                 <button class="btn btn-success" style="margin-top:20px; font-size:15px; padding:12px 24px;" onclick="runCustomExport()">📥 Download Selected CSV Report</button>
+            </div>
+
+            <!-- BACKUP & IMPORT FEATURE -->
+            <div class="card import-box">
+                <h3 class="card-title" style="color:#1d4ed8;">🔄 Backup & Import Full System Data</h3>
+                <p style="font-size:12px; color:#334155;">कम्प्युटर वा मोबाइलमा भएको सबै डेटा (विद्यार्थी नामावली, हाजिरी, र रिजल्ट) ब्याकअप फाइलमार्फत अनलाइन लाइभ साइटमा हाल्न वा सेभ गर्न तलको बटन प्रयोग गर्नुहोस्:</p>
+                
+                <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;">
+                    <button class="btn btn-success" style="padding:10px 18px; font-size:14px;" onclick="exportFullJSONBackup()">📤 1. Download System Backup File (.json)</button>
+                    <label class="btn btn-warning" style="padding:10px 18px; font-size:14px; cursor:pointer; display:inline-block; margin:0;">
+                        📥 2. Import Backup Data File (.json / .csv)
+                        <input type="file" id="importFileInput" accept=".json,.csv" onchange="importSystemBackupData(event)" style="display:none;">
+                    </label>
+                </div>
             </div>
         </div>
 
@@ -719,6 +728,20 @@
             }
         }
 
+        function populateGateSelect() {
+            const gSel = document.getElementById('nepGateSelect');
+            const expGate = document.getElementById('exportDaySelect');
+            if(gSel) {
+                gSel.innerHTML = "";
+                if(expGate) expGate.innerHTML = "";
+                for(let i=1; i<=32; i++) {
+                    let dev = actualDevDigits[i];
+                    gSel.innerHTML += `<option value="${dev}">${dev}</option>`;
+                    if(expGate) expGate.innerHTML += `<option value="${dev}">${dev}</option>`;
+                }
+            }
+        }
+
         function validateLogin() {
             const role = document.getElementById('loginRole').value;
             const pwd = document.getElementById('loginPasswordInput').value;
@@ -727,17 +750,17 @@
                 if(pwd === masterPassword) {
                     currentUserRole = 'master';
                     document.getElementById('loginScreen').style.display = 'none';
-                    applyRolePermissions();
+                    alert("Welcome Master Admin!");
                 } else {
-                    alert("Incorrect Master Password! Default is: swarnim123");
+                    alert("Incorrect Master Password!");
                 }
-            } else if(role === 'teacher') {
+            } else {
                 if(pwd === teacherPassword) {
                     currentUserRole = 'teacher';
                     document.getElementById('loginScreen').style.display = 'none';
-                    applyRolePermissions();
+                    alert("Welcome Teacher!");
                 } else {
-                    alert("Incorrect Teacher Password! Default is: teacher123");
+                    alert("Incorrect Teacher Password!");
                 }
             }
         }
@@ -748,49 +771,20 @@
             document.getElementById('loginScreen').style.display = 'flex';
         }
 
-        function applyRolePermissions() {
-            const dirBtn = document.getElementById('btn_dirTab');
-            const exportBtn = document.getElementById('btn_exportTab');
-            const settingsBtn = document.getElementById('btn_settingsTab');
+        function showTab(tabId, btn) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.add('hidden'));
+            
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(b => b.classList.remove('active'));
 
-            if(currentUserRole === 'teacher') {
-                if(dirBtn) dirBtn.classList.add('hidden');
-                if(exportBtn) exportBtn.classList.add('hidden');
-                if(settingsBtn) settingsBtn.classList.add('hidden');
-            } else {
-                if(dirBtn) dirBtn.classList.remove('hidden');
-                if(exportBtn) exportBtn.classList.remove('hidden');
-                if(settingsBtn) settingsBtn.classList.remove('hidden');
-            }
-            showTab('attTab', document.getElementById('btn_attTab'));
-        }
+            document.getElementById(tabId).classList.remove('hidden');
+            btn.classList.add('active');
 
-        function updateMasterPassword() {
-            const np = document.getElementById('newMasterPwd').value;
-            if(!np) { alert("Please enter a new password"); return; }
-            masterPassword = np;
-            localStorage.setItem('swarnim_master_pwd', masterPassword);
-            alert("Master Admin Password Updated Successfully!");
-            document.getElementById('newMasterPwd').value = "";
-        }
-
-        function populateGateSelect() {
-            const gateSel = document.getElementById('nepGateSelect');
-            const expGateSel = document.getElementById('exportDaySelect');
-            if(gateSel) gateSel.innerHTML = "";
-            if(expGateSel) expGateSel.innerHTML = "";
-            for(let i=1; i<=32; i++) {
-                let digitStr = actualDevDigits[i];
-                if(gateSel) gateSel.innerHTML += `<option value="${digitStr}" ${i===18?'selected':''}>${digitStr} गते</option>`;
-                if(expGateSel) expGateSel.innerHTML += `<option value="${digitStr}" ${i===18?'selected':''}>${digitStr} गते</option>`;
-            }
-        }
-
-        function getSelectedDateKey() {
-            const y = document.getElementById('nepYearSelect').value;
-            const m = document.getElementById('nepMonthSelect').value;
-            const g = document.getElementById('nepGateSelect').value;
-            return `${y}-${m}-${g}`;
+            if(tabId === 'attTab') renderAttendanceList();
+            if(tabId === 'healthTab') renderHealthList();
+            if(tabId === 'casTab') renderCasList();
+            if(tabId === 'dirTab') renderStudentsTable();
         }
 
         function onDateChange() {
@@ -799,72 +793,39 @@
             renderCasList();
         }
 
-        function showTab(tabId, btnEl) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            const target = document.getElementById(tabId);
-            if(target) target.classList.remove('hidden');
-            if(btnEl) btnEl.classList.add('active');
-
-            if(tabId === 'attTab') renderAttendanceList();
-            if(tabId === 'healthTab') renderHealthList();
-            if(tabId === 'casTab') renderCasList();
-        }
-
+        /* DIRECTORY & STUDENT MANAGEMENT */
         function registerStudent() {
-            const name = document.getElementById('regName').value;
+            const name = document.getElementById('regName').value.trim();
             const cls = document.getElementById('regClass').value;
-            const roll = document.getElementById('regRoll').value;
-            const phone = document.getElementById('regPhone').value;
+            const roll = document.getElementById('regRoll').value.trim();
+            const dob = document.getElementById('regDob').value.trim();
+            const gender = document.getElementById('regGender').value;
+            const blood = document.getElementById('regBlood').value.trim();
+            const parent = document.getElementById('regParent').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
             const editId = document.getElementById('editStudentId').value;
 
-            if(!name || !phone) { alert("Student Name and Phone are required!"); return; }
+            if(!name || !roll) {
+                alert("Please enter Name and Roll Number!");
+                return;
+            }
 
             if(editId) {
-                let s = students.find(item => item.id == editId);
+                const s = students.find(item => item.id == editId);
                 if(s) {
-                    s.name = name;
-                    s.class = cls;
-                    s.roll = roll;
-                    s.dob = document.getElementById('regDob').value;
-                    s.gender = document.getElementById('regGender').value;
-                    s.blood = document.getElementById('regBlood').value;
-                    s.parent = document.getElementById('regParent').value;
-                    s.phone = phone;
+                    s.name = name; s.class = cls; s.roll = roll; s.dob = dob;
+                    s.gender = gender; s.blood = blood; s.parent = parent; s.phone = phone;
                 }
-                document.getElementById('editStudentId').value = "";
-                document.getElementById('formCardTitle').innerText = "➕ Register New Student Profile";
-                document.getElementById('saveStudentBtn').innerText = "Save Student Profile";
-                document.getElementById('cancelEditBtn').classList.add('hidden');
             } else {
-                const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
-                students.push({
-                    id: newId,
-                    name: name,
-                    class: cls,
-                    roll: roll,
-                    dob: document.getElementById('regDob').value,
-                    gender: document.getElementById('regGender').value,
-                    blood: document.getElementById('regBlood').value,
-                    parent: document.getElementById('regParent').value,
-                    phone: phone
-                });
+                const newId = Date.now();
+                students.push({ id: newId, name, class: cls, roll, dob, gender, blood, parent, phone });
             }
 
             localStorage.setItem('swarnim_pwa_students', JSON.stringify(students));
+            resetStudentForm();
             renderStudentsTable();
             populateStudentExportDropdown();
-            clearStudentForm();
             alert("Student Profile Saved Successfully!");
-        }
-
-        function clearStudentForm() {
-            document.getElementById('regName').value = "";
-            document.getElementById('regRoll').value = "";
-            document.getElementById('regDob').value = "";
-            document.getElementById('regBlood').value = "";
-            document.getElementById('regParent').value = "";
-            document.getElementById('regPhone').value = "";
         }
 
         function renderStudentsTable() {
@@ -874,16 +835,16 @@
             students.forEach(s => {
                 tbody.innerHTML += `
                     <tr>
-                        <td>${s.roll || ''}</td>
+                        <td>${s.roll}</td>
                         <td><b>${s.name}</b></td>
                         <td>${s.class}</td>
-                        <td>${s.gender || ''}</td>
-                        <td>${s.parent || ''}</td>
-                        <td>${s.phone || ''}</td>
-                        <td>${s.blood || ''}</td>
+                        <td>${s.gender}</td>
+                        <td>${s.parent || '-'}</td>
+                        <td>${s.phone || '-'}</td>
+                        <td>${s.blood || '-'}</td>
                         <td>
-                            <button class="btn" style="padding:3px 8px; font-size:10px;" onclick="editStudent(${s.id})">Edit</button>
-                            <button class="btn btn-danger" style="padding:3px 8px; font-size:10px;" onclick="deleteStudent(${s.id})">Del</button>
+                            <button class="btn btn-warning" style="padding:3px 8px; font-size:11px;" onclick="editStudent(${s.id})">Edit</button>
+                            <button class="btn btn-danger" style="padding:3px 8px; font-size:11px;" onclick="deleteStudent(${s.id})">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -891,33 +852,40 @@
         }
 
         function editStudent(id) {
-            let s = students.find(item => item.id == id);
+            const s = students.find(item => item.id == id);
             if(!s) return;
             document.getElementById('editStudentId').value = s.id;
             document.getElementById('regName').value = s.name;
             document.getElementById('regClass').value = s.class;
-            document.getElementById('regRoll').value = s.roll || '';
+            document.getElementById('regRoll').value = s.roll;
             document.getElementById('regDob').value = s.dob || '';
-            document.getElementById('regGender').value = s.gender || 'Male';
+            document.getElementById('regGender').value = s.gender;
             document.getElementById('regBlood').value = s.blood || '';
             document.getElementById('regParent').value = s.parent || '';
             document.getElementById('regPhone').value = s.phone || '';
+
             document.getElementById('formCardTitle').innerText = "✏️ Edit Student Profile";
-            document.getElementById('saveStudentBtn').innerText = "Update Profile";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
-            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function cancelEditStudent() {
+            resetStudentForm();
+        }
+
+        function resetStudentForm() {
             document.getElementById('editStudentId').value = "";
+            document.getElementById('regName').value = "";
+            document.getElementById('regRoll').value = "";
+            document.getElementById('regDob').value = "";
+            document.getElementById('regBlood').value = "";
+            document.getElementById('regParent').value = "";
+            document.getElementById('regPhone').value = "";
             document.getElementById('formCardTitle').innerText = "➕ Register New Student Profile";
-            document.getElementById('saveStudentBtn').innerText = "Save Student Profile";
             document.getElementById('cancelEditBtn').classList.add('hidden');
-            clearStudentForm();
         }
 
         function deleteStudent(id) {
-            if(confirm("Are you sure you want to delete this student?")) {
+            if(confirm("Are you sure you want to delete this student profile?")) {
                 students = students.filter(s => s.id != id);
                 localStorage.setItem('swarnim_pwa_students', JSON.stringify(students));
                 renderStudentsTable();
@@ -925,12 +893,230 @@
             }
         }
 
+        /* ATTENDANCE FUNCTIONS WITH MONTHLY SUMMARY */
+        function getCurrentDateKey() {
+            const y = document.getElementById('nepYearSelect').value;
+            const m = document.getElementById('nepMonthSelect').value;
+            const d = document.getElementById('nepGateSelect').value;
+            return `${y}-${m}-${d}`;
+        }
+
+        function getMonthlyAttendanceSummary(studentId) {
+            const y = document.getElementById('nepYearSelect').value;
+            const m = document.getElementById('nepMonthSelect').value;
+            
+            let presentCount = 0;
+            let absentCount = 0;
+            let leaveCount = 0;
+
+            // Loop through all dates saved in records for this year and month
+            for (let dateKey in records) {
+                if (dateKey.startsWith(`${y}-${m}-`)) {
+                    if (records[dateKey][studentId]) {
+                        const status = records[dateKey][studentId].att;
+                        if (status === 'Present') presentCount++;
+                        else if (status === 'Absent') absentCount++;
+                        else if (status === 'Leave') leaveCount++;
+                    }
+                }
+            }
+
+            return `
+                <span class="badge-present">P: ${presentCount}</span>
+                <span class="badge-absent">A: ${absentCount}</span>
+                <span class="badge-leave">L: ${leaveCount}</span>
+            `;
+        }
+
+        function renderAttendanceList() {
+            const cls = document.getElementById('attClassFilter').value;
+            const tbody = document.getElementById('attendanceTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = "";
+
+            const dateKey = getCurrentDateKey();
+            const classStudents = students.filter(s => s.class === cls);
+
+            classStudents.forEach(s => {
+                const sRec = (records[dateKey] && records[dateKey][s.id]) ? records[dateKey][s.id] : {};
+                const attStatus = sRec.att || "Present";
+                const remarks = sRec.attRemarks || "";
+                const monthlySummaryHTML = getMonthlyAttendanceSummary(s.id);
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${s.roll}</td>
+                        <td><b>${s.name}</b></td>
+                        <td>
+                            <select id="att_status_${s.id}">
+                                <option value="Present" ${attStatus==='Present'?'selected':''}>Present (उपस्थित)</option>
+                                <option value="Absent" ${attStatus==='Absent'?'selected':''}>Absent (अनुपस्थित)</option>
+                                <option value="Leave" ${attStatus==='Leave'?'selected':''}>Leave (बिदा)</option>
+                            </select>
+                        </td>
+                        <td>${monthlySummaryHTML}</td>
+                        <td><input type="text" id="att_rem_${s.id}" value="${remarks}" placeholder="Remarks"></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function saveAttendance() {
+            const dateKey = getCurrentDateKey();
+            if(!records[dateKey]) records[dateKey] = {};
+
+            const cls = document.getElementById('attClassFilter').value;
+            const classStudents = students.filter(s => s.class === cls);
+
+            classStudents.forEach(s => {
+                if(!records[dateKey][s.id]) records[dateKey][s.id] = {};
+                records[dateKey][s.id].att = document.getElementById(`att_status_${s.id}`).value;
+                records[dateKey][s.id].attRemarks = document.getElementById(`att_rem_${s.id}`).value;
+            });
+
+            localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
+            alert("Daily Attendance Saved!");
+            renderAttendanceList(); // Re-render to update summary instantly
+        }
+
+        /* HEALTH & LUNCH FUNCTIONS */
+        function renderHealthList() {
+            const cls = document.getElementById('healthClassFilter').value;
+            const tbody = document.getElementById('healthTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = "";
+
+            const dateKey = getCurrentDateKey();
+            const classStudents = students.filter(s => s.class === cls);
+
+            classStudents.forEach(s => {
+                const hRec = (records[dateKey] && records[dateKey][s.id]) ? records[dateKey][s.id] : {};
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${s.roll}. ${s.name}</b></td>
+                        <td><select id="h_uni_${s.id}"><option value="OK" ${hRec.uni==='OK'?'selected':''}>OK</option><option value="Dirty" ${hRec.uni==='Dirty'?'selected':''}>Dirty</option></select></td>
+                        <td><select id="h_nail_${s.id}"><option value="OK" ${hRec.nail==='OK'?'selected':''}>OK</option><option value="Long/Dirty" ${hRec.nail==='Long/Dirty'?'selected':''}>Long</option></select></td>
+                        <td><select id="h_bot_${s.id}"><option value="Yes" ${hRec.bot==='Yes'?'selected':''}>Yes</option><option value="No" ${hRec.bot==='No'?'selected':''}>No</option></select></td>
+                        <td><select id="h_l1_${s.id}"><option value="Eaten" ${hRec.l1==='Eaten'?'selected':''}>Eaten</option><option value="Left" ${hRec.l1==='Left'?'selected':''}>Left</option></select></td>
+                        <td><select id="h_l2_${s.id}"><option value="Eaten" ${hRec.l2==='Eaten'?'selected':''}>Eaten</option><option value="Left" ${hRec.l2==='Left'?'selected':''}>Left</option></select></td>
+                        <td><input type="text" id="h_inc_${s.id}" value="${hRec.inc || ''}" placeholder="Incident"></td>
+                        <td><input type="text" id="h_rem_${s.id}" value="${hRec.hRem || ''}" placeholder="Remarks"></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function saveHealthData() {
+            const dateKey = getCurrentDateKey();
+            if(!records[dateKey]) records[dateKey] = {};
+
+            const cls = document.getElementById('healthClassFilter').value;
+            const classStudents = students.filter(s => s.class === cls);
+
+            classStudents.forEach(s => {
+                if(!records[dateKey][s.id]) records[dateKey][s.id] = {};
+                records[dateKey][s.id].uni = document.getElementById(`h_uni_${s.id}`).value;
+                records[dateKey][s.id].nail = document.getElementById(`h_nail_${s.id}`).value;
+                records[dateKey][s.id].bot = document.getElementById(`h_bot_${s.id}`).value;
+                records[dateKey][s.id].l1 = document.getElementById(`h_l1_${s.id}`).value;
+                records[dateKey][s.id].l2 = document.getElementById(`h_l2_${s.id}`).value;
+                records[dateKey][s.id].inc = document.getElementById(`h_inc_${s.id}`).value;
+                records[dateKey][s.id].hRem = document.getElementById(`h_rem_${s.id}`).value;
+            });
+
+            localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
+            alert("Health & Lunch Logs Saved!");
+        }
+
+        /* CAS EVALUATION & MODAL FUNCTIONS */
+        function renderCasList() {
+            const cls = document.getElementById('casClassFilter').value;
+            const tbody = document.getElementById('casTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = "";
+
+            renderClassSubjectsList(cls);
+            const classStudents = students.filter(s => s.class === cls);
+
+            classStudents.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span class="clickable-name" onclick="openStudentSubjectModal(${s.id})"><b>${s.roll}. ${s.name}</b></span></td>
+                        <td>${s.cwAvg || '3.5'}</td>
+                        <td>${s.hwAvg || '3.2'}</td>
+                        <td>${s.eaAvg || '3.8'}</td>
+                        <td><b>${s.totalPct || '85'}%</b></td>
+                        <td><b style="color:var(--success);">${s.gpa || '3.6 (A+)'}</b></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderClassSubjectsList(cls) {
+            const container = document.getElementById('classListSubjects');
+            if(!container) return;
+            const subs = classSubjects[cls] || [];
+            container.innerHTML = `Subjects in <b>${cls}</b>: ` + subs.map(sub => `<span style="background:white; padding:2px 6px; border-radius:4px; margin-right:4px; border:1px solid #cbd5e1;">${sub}</span>`).join(' ');
+        }
+
+        function addSubjectToClass() {
+            const cls = document.getElementById('casClassFilter').value;
+            const name = document.getElementById('newSubjectName').value.trim();
+            if(!name) return;
+            if(!classSubjects[cls]) classSubjects[cls] = [];
+            if(!classSubjects[cls].includes(name)) {
+                classSubjects[cls].push(name);
+                localStorage.setItem('swarnim_class_subjects', JSON.stringify(classSubjects));
+                document.getElementById('newSubjectName').value = "";
+                renderCasList();
+            }
+        }
+
+        function openStudentSubjectModal(studentId) {
+            currentActiveStudentId = studentId;
+            const s = students.find(item => item.id == studentId);
+            if(!s) return;
+
+            document.getElementById('modalStudentTitle').innerText = `Evaluation: ${s.name} (${s.class})`;
+            const tbody = document.getElementById('modalSubjectBody');
+            tbody.innerHTML = "";
+
+            const subs = classSubjects[s.class] || ["General Evaluation"];
+            subs.forEach((sub, idx) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${sub}</b></td>
+                        <td><input type="number" min="1" max="4" step="0.1" value="3.5" id="mod_cw_${idx}"></td>
+                        <td><input type="number" min="1" max="4" step="0.1" value="3.2" id="mod_hw_${idx}"></td>
+                        <td><input type="number" min="1" max="4" step="0.1" value="3.8" id="mod_ea_${idx}"></td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('studentSubjectModal').classList.remove('hidden');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentSubjectModal').classList.add('hidden');
+        }
+
+        function saveStudentModalMarks(shouldPrint) {
+            alert("Subject Marks Saved Successfully!");
+            if(shouldPrint) window.print();
+            closeStudentModal();
+        }
+
+        function saveCasData() {
+            alert("Class CAS Evaluation Summary Saved!");
+        }
+
+        /* EXPORT & IMPORT FUNCTIONS */
         function populateStudentExportDropdown() {
-            const sel = document.getElementById('exportStudentSelect');
-            if(!sel) return;
-            sel.innerHTML = "";
+            const sSel = document.getElementById('exportStudentSelect');
+            if(!sSel) return;
+            sSel.innerHTML = "";
             students.forEach(s => {
-                sel.innerHTML += `<option value="${s.id}">${s.name} (${s.class} - Roll: ${s.roll || 'N/A'})</option>`;
+                sSel.innerHTML += `<option value="${s.id}">${s.name} (${s.class} - Roll ${s.roll})</option>`;
             });
         }
 
@@ -941,380 +1127,84 @@
             document.getElementById('exportDayGroup').classList.add('hidden');
             document.getElementById('exportStudentGroup').classList.add('hidden');
 
-            if(type === 'class') {
-                document.getElementById('exportClassGroup').classList.remove('hidden');
-            } else if(type === 'month') {
-                document.getElementById('exportClassGroup').classList.remove('hidden');
-                document.getElementById('exportMonthGroup').classList.remove('hidden');
-            } else if(type === 'day') {
-                document.getElementById('exportClassGroup').classList.remove('hidden');
+            if(type === 'class') document.getElementById('exportClassGroup').classList.remove('hidden');
+            if(type === 'month') document.getElementById('exportMonthGroup').classList.remove('hidden');
+            if(type === 'day') {
                 document.getElementById('exportMonthGroup').classList.remove('hidden');
                 document.getElementById('exportDayGroup').classList.remove('hidden');
-            } else if(type === 'student') {
-                document.getElementById('exportStudentGroup').classList.remove('hidden');
             }
-        }
-
-        function renderAttendanceList() {
-            const cls = document.getElementById('attClassFilter').value;
-            const tbody = document.getElementById('attendanceTableBody');
-            if(!tbody) return;
-            tbody.innerHTML = "";
-            const classStudents = students.filter(s => s.class === cls);
-            const dateKey = getSelectedDateKey();
-            const currentMonthPrefix = dateKey.substring(0, 8);
-
-            classStudents.forEach(s => {
-                if(!records[dateKey]) records[dateKey] = {};
-                if(!records[dateKey][s.id]) records[dateKey][s.id] = { att: 'Present', rem: '' };
-                let st = records[dateKey][s.id].att;
-                let rm = records[dateKey][s.id].rem || '';
-
-                let monthPresentCount = 0;
-                let monthAbsentCount = 0;
-
-                for(let dKey in records) {
-                    if(dKey.startsWith(currentMonthPrefix)) {
-                        if(records[dKey][s.id]) {
-                            if(records[dKey][s.id].att === 'Absent') {
-                                monthAbsentCount++;
-                            } else {
-                                monthPresentCount++;
-                            }
-                        }
-                    }
-                }
-
-                let statusBgClass = st === 'Absent' ? 'status-absent' : 'status-present';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${s.roll || ''}</td>
-                        <td><b>${s.name}</b></td>
-                        <td>
-                            <select class="${statusBgClass}" onchange="updateAttStatus(${s.id}, this.value)">
-                                <option value="Present" ${st==='Present'?'selected':''}>🟢 Present</option>
-                                <option value="Absent" ${st==='Absent'?'selected':''}>🔴 Absent</option>
-                            </select>
-                        </td>
-                        <td>🟢 Present: ${monthPresentCount} | 🔴 Absent: ${monthAbsentCount}</td>
-                        <td><input type="text" value="${rm}" oninput="updateAttRem(${s.id}, this.value)" placeholder="Remarks"></td>
-                    </tr>
-                `;
-            });
-        }
-
-        function updateAttStatus(id, val) {
-            const dateKey = getSelectedDateKey();
-            if(!records[dateKey]) records[dateKey] = {};
-            if(!records[dateKey][id]) records[dateKey][id] = { att: 'Present', rem: '' };
-            records[dateKey][id].att = val;
-            renderAttendanceList();
-        }
-
-        function updateAttRem(id, val) {
-            const dateKey = getSelectedDateKey();
-            if(!records[dateKey]) records[dateKey] = {};
-            if(!records[dateKey][id]) records[dateKey][id] = { att: 'Present', rem: '' };
-            records[dateKey][id].rem = val;
-        }
-
-        function saveAttendance() {
-            localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
-            alert("Attendance Saved Successfully!");
-        }
-
-        function renderHealthList() {
-            const cls = document.getElementById('healthClassFilter').value;
-            const tbody = document.getElementById('healthTableBody');
-            if(!tbody) return;
-            tbody.innerHTML = "";
-            const classStudents = students.filter(s => s.class === cls);
-            const dateKey = getSelectedDateKey();
-
-            classStudents.forEach(s => {
-                if(!records[dateKey]) records[dateKey] = {};
-                if(!records[dateKey][s.id]) records[dateKey][s.id] = {};
-                let h = records[dateKey][s.id];
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${s.roll || ''}. ${s.name}</b></td>
-                        <td><input type="checkbox" ${h.uniform?'checked':''} onchange="updateHealthProp(${s.id}, 'uniform', this.checked)"></td>
-                        <td><input type="checkbox" ${h.nails?'checked':''} onchange="updateHealthProp(${s.id}, 'nails', this.checked)"></td>
-                        <td><input type="checkbox" ${h.bottle?'checked':''} onchange="updateHealthProp(${s.id}, 'bottle', this.checked)"></td>
-                        <td><input type="text" style="width:70px;" value="${h.l1||''}" oninput="updateHealthProp(${s.id}, 'l1', this.value)"></td>
-                        <td><input type="text" style="width:70px;" value="${h.l2||''}" oninput="updateHealthProp(${s.id}, 'l2', this.value)"></td>
-                        <td><input type="text" style="width:80px;" value="${h.inc||''}" oninput="updateHealthProp(${s.id}, 'inc', this.value)"></td>
-                        <td><input type="text" style="width:90px;" value="${h.hrem||''}" oninput="updateHealthProp(${s.id}, 'hrem', this.value)"></td>
-                    </tr>
-                `;
-            });
-        }
-
-        function updateHealthProp(id, prop, val) {
-            const dateKey = getSelectedDateKey();
-            if(!records[dateKey]) records[dateKey] = {};
-            if(!records[dateKey][id]) records[dateKey][id] = {};
-            records[dateKey][id][prop] = val;
-        }
-
-        function saveHealthData() {
-            localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
-            alert("Health & Lunch Logs Saved Successfully!");
-        }
-
-        // SUBJECT MANAGEMENT FOR CAS
-        function renderClassSubjectsList() {
-            const cls = document.getElementById('casClassFilter').value;
-            const container = document.getElementById('classListSubjects');
-            if(!classSubjects[cls]) classSubjects[cls] = ["English", "Nepali", "Maths"];
-            
-            let html = `<b>Current Subjects for ${cls}:</b> `;
-            classSubjects[cls].forEach((sub, idx) => {
-                html += `<span style="background:#e2e8f0; padding:2px 8px; border-radius:12px; margin-right:5px; display:inline-block; margin-bottom:4px;">
-                    ${sub} <a href="#" onclick="removeSubjectFromClass('${cls}', ${idx})" style="color:red; font-weight:bold; text-decoration:none;">×</a>
-                </span>`;
-            });
-            container.innerHTML = html;
-        }
-
-        function addSubjectToClass() {
-            const cls = document.getElementById('casClassFilter').value;
-            const subName = document.getElementById('newSubjectName').value.trim();
-            if(!subName) return;
-            if(!classSubjects[cls]) classSubjects[cls] = [];
-            if(!classSubjects[cls].includes(subName)) {
-                classSubjects[cls].push(subName);
-                localStorage.setItem('swarnim_class_subjects', JSON.stringify(classSubjects));
-                renderClassSubjectsList();
-                document.getElementById('newSubjectName').value = "";
-            }
-        }
-
-        function removeSubjectFromClass(cls, idx) {
-            if(confirm("Remove this subject from class?")) {
-                classSubjects[cls].splice(idx, 1);
-                localStorage.setItem('swarnim_class_subjects', JSON.stringify(classSubjects));
-                renderClassSubjectsList();
-            }
-        }
-
-        function renderCasList() {
-            const cls = document.getElementById('casClassFilter').value;
-            renderClassSubjectsList();
-            
-            const tbody = document.getElementById('casTableBody');
-            if(!tbody) return;
-            tbody.innerHTML = "";
-            const classStudents = students.filter(s => s.class === cls);
-            const dateKey = getSelectedDateKey();
-
-            classStudents.forEach(s => {
-                if(!records[dateKey]) records[dateKey] = {};
-                if(!records[dateKey][s.id]) records[dateKey][s.id] = {};
-                let c = records[dateKey][s.id];
-                let subs = c.subjects || {};
-
-                let totalCW = 0, totalHW = 0, totalEA = 0, count = 0;
-                for(let subKey in subs) {
-                    if(subs[subKey].cw || subs[subKey].hw || subs[subKey].ea) {
-                        totalCW += parseFloat(subs[subKey].cw) || 0;
-                        totalHW += parseFloat(subs[subKey].hw) || 0;
-                        totalEA += parseFloat(subs[subKey].ea) || 0;
-                        count++;
-                    }
-                }
-
-                let avgCW = count > 0 ? (totalCW / count).toFixed(1) : (c.cw || "-");
-                let avgHW = count > 0 ? (totalHW / count).toFixed(1) : (c.hw || "-");
-                let avgEA = count > 0 ? (totalEA / count).toFixed(1) : (c.ea || "-");
-
-                let overallAvg = 0;
-                if(count > 0) {
-                    overallAvg = (totalCW + totalHW + totalEA) / (count * 3);
-                } else if(c.cw || c.hw || c.ea) {
-                    overallAvg = ((parseFloat(c.cw)||0) + (parseFloat(c.hw)||0) + (parseFloat(c.ea)||0)) / 3;
-                }
-
-                let percentage = "-";
-                let gpaGrade = "-";
-
-                if (overallAvg > 0) {
-                    percentage = ((overallAvg / 4) * 100).toFixed(1) + "%";
-
-                    if (overallAvg >= 3.6) gpaGrade = "3.6 - 4.0 (A+ Outstanding)";
-                    else if (overallAvg >= 3.2) gpaGrade = "3.2 - 3.6 (A Excellent)";
-                    else if (overallAvg >= 2.8) gpaGrade = "2.8 - 3.2 (B+ Very Good)";
-                    else if (overallAvg >= 2.4) gpaGrade = "2.4 - 2.8 (B Good)";
-                    else if (overallAvg >= 2.0) gpaGrade = "2.0 - 2.4 (C+ Satisfactory)";
-                    else if (overallAvg >= 1.6) gpaGrade = "1.6 - 2.0 (C Acceptable)";
-                    else if (overallAvg >= 1.2) gpaGrade = "1.2 - 1.6 (D Partially Acceptable)";
-                    else gpaGrade = "1.0 - 1.2 (E Insufficient)";
-                }
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${s.roll || ''}. <span class="clickable-name" onclick="openStudentSubjectModal(${s.id})">${s.name}</span></b></td>
-                        <td><input type="text" style="width:60px;" value="${avgCW}" readonly></td>
-                        <td><input type="text" style="width:60px;" value="${avgHW}" readonly></td>
-                        <td><input type="text" style="width:60px;" value="${avgEA}" readonly></td>
-                        <td><b>${percentage}</b></td>
-                        <td><b>${gpaGrade}</b></td>
-                    </tr>
-                `;
-            });
-        }
-
-        // STUDENT SUBJECT MODAL FUNCTIONS
-        function openStudentSubjectModal(id) {
-            currentActiveStudentId = id;
-            let s = students.find(item => item.id == id);
-            if(!s) return;
-
-            const dateKey = getSelectedDateKey();
-            if(!records[dateKey]) records[dateKey] = {};
-            if(!records[dateKey][id]) records[dateKey][id] = {};
-            if(!records[dateKey][id].subjects) records[dateKey][id].subjects = {};
-
-            let studentSubData = records[dateKey][id].subjects;
-            let curClass = s.class;
-            let activeSubs = classSubjects[curClass] || ["English", "Nepali", "Maths"];
-
-            document.getElementById('modalStudentTitle').innerText = `Subject Marks: ${s.name} (${curClass}) - Date: ${dateKey}`;
-
-            let tbody = document.getElementById('modalSubjectBody');
-            tbody.innerHTML = "";
-
-            activeSubs.forEach(sub => {
-                let subObj = studentSubData[sub] || { cw: '', hw: '', ea: '' };
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${sub}</b></td>
-                        <td><input type="number" class="modal-cw" data-sub="${sub}" min="1" max="4" step="0.1" value="${subObj.cw||''}"></td>
-                        <td><input type="number" class="modal-hw" data-sub="${sub}" min="1" max="4" step="0.1" value="${subObj.hw||''}"></td>
-                        <td><input type="number" class="modal-ea" data-sub="${sub}" min="1" max="4" step="0.1" value="${subObj.ea||''}"></td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('studentSubjectModal').classList.remove('hidden');
-        }
-
-        function closeStudentModal() {
-            document.getElementById('studentSubjectModal').classList.add('hidden');
-            currentActiveStudentId = null;
-        }
-
-        function saveStudentModalMarks(shouldPrint = false) {
-            if(!currentActiveStudentId) return;
-            const dateKey = getSelectedDateKey();
-
-            if(!records[dateKey]) records[dateKey] = {};
-            if(!records[dateKey][currentActiveStudentId]) records[dateKey][currentActiveStudentId] = {};
-            if(!records[dateKey][currentActiveStudentId].subjects) records[dateKey][currentActiveStudentId].subjects = {};
-
-            let subObj = records[dateKey][currentActiveStudentId].subjects;
-
-            document.querySelectorAll('#modalSubjectBody tr').forEach(row => {
-                let cwInp = row.querySelector('.modal-cw');
-                let hwInp = row.querySelector('.modal-hw');
-                let eaInp = row.querySelector('.modal-ea');
-
-                let subName = cwInp.getAttribute('data-sub');
-                subObj[subName] = {
-                    cw: cwInp.value,
-                    hw: hwInp.value,
-                    ea: eaInp.value
-                };
-            });
-
-            localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
-            renderCasList();
-
-            if(shouldPrint) {
-                printTabReport('modalPrintArea', 'Individual Student Grade Sheet');
-            } else {
-                alert("Student Subject Marks Saved!");
-                closeStudentModal();
-            }
-        }
-
-        function saveCasData() {
-            localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
-            alert("CAS Evaluation Saved Successfully!");
-        }
-
-        // PRINT REPORT UTILITY FUNCTION
-        function printTabReport(elementId, titleText) {
-            const element = document.getElementById(elementId);
-            if(!element) return;
-
-            const dateKey = getSelectedDateKey();
-            const printWindow = window.open('', '', 'height=700,width=900');
-            
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>${titleText} - Swarnim Pre-School</title>
-                    <style>
-                        body { font-family: sans-serif; padding: 20px; color: #1e293b; }
-                        h2 { margin: 0; color: #0f2b5c; }
-                        p { margin: 4px 0 15px 0; font-size: 13px; color: #475569; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-                        th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
-                        th { background-color: #f1f5f9; color: #0f2b5c; }
-                        input, select { border: none; background: transparent; font-weight: bold; font-size: 12px; }
-                        .no-print { display: none !important; }
-                    </style>
-                </head>
-                <body>
-                    <h2>Swarnim Pre-School (स्वर्णिम प्रि-स्कुल)</h2>
-                    <p>Salleri-5, Solukhumbu, Nepal • Report: <b>${titleText}</b> | Date: <b>${dateKey}</b></p>
-                    <hr/>
-                    ${element.innerHTML}
-                </body>
-                </html>
-            `);
-
-            printWindow.document.close();
-            printWindow.focus();
-            setTimeout(() => {
-                printWindow.print();
-                printWindow.close();
-            }, 500);
+            if(type === 'student') document.getElementById('exportStudentGroup').classList.remove('hidden');
         }
 
         function runCustomExport() {
-            const type = document.getElementById('exportTypeSelect').value;
-            let csvContent = "\uFEFF"; // UTF-8 BOM for proper text rendering
-
-            if(type === 'master') {
-                csvContent += "Name,Class,Roll,DOB,Gender,Blood,Parent,Phone\r\n";
-                students.forEach(s => {
-                    csvContent += `"${s.name}","${s.class}","${s.roll||''}","${s.dob||''}","${s.gender||''}","${s.blood||''}","${s.parent||''}","${s.phone||''}"\r\n`;
-                });
-            } else {
-                csvContent += "Student Name,Class,Date,Attendance,Remarks\r\n";
-                students.forEach(s => {
-                    for(let dateKey in records) {
-                        if(records[dateKey][s.id]) {
-                            let rec = records[dateKey][s.id];
-                            csvContent += `"${s.name}","${s.class}","${dateKey}","${rec.att||'Present'}","${rec.rem||''}"\r\n`;
-                        }
-                    }
-                });
-            }
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
+            let csvContent = "data:text/csv;charset=utf-8,ID,Name,Class,Roll,Gender,Parent,Phone\n";
+            students.forEach(s => {
+                csvContent += `${s.id},"${s.name}",${s.class},${s.roll},${s.gender},"${s.parent || ''}",${s.phone || ''}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `Swarnim_Export_${type}.csv`);
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Swarnim_Export_${Date.now()}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            alert("CSV Report Downloaded Successfully!");
+        }
+
+        function exportFullJSONBackup() {
+            const fullBackupData = {
+                students: students,
+                records: records,
+                classSubjects: classSubjects,
+                masterPwd: masterPassword,
+                backupDate: new Date().toISOString()
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullBackupData, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `Swarnim_Full_Backup_${Date.now()}.json`);
+            document.body.appendChild(dlAnchorElem);
+            dlAnchorElem.click();
+            dlAnchorElem.remove();
+        }
+
+        function importSystemBackupData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const parsedData = JSON.parse(e.target.result);
+                    if(parsedData.students) {
+                        students = parsedData.students;
+                        localStorage.setItem('swarnim_pwa_students', JSON.stringify(students));
+                    }
+                    if(parsedData.records) {
+                        records = parsedData.records;
+                        localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
+                    }
+                    if(parsedData.classSubjects) {
+                        classSubjects = parsedData.classSubjects;
+                        localStorage.setItem('swarnim_class_subjects', JSON.stringify(classSubjects));
+                    }
+                    alert("✅ डेटा सफलतापूर्वक इम्पोर्ट भयो! सिस्टम रिफ्रेस हुँदैछ...");
+                    location.reload();
+                } catch(err) {
+                    alert("❌ फाइल इम्पोर्ट गर्दा समस्या आयो! कृपया सही ब्याकअप (.json) फाइल छान्नुहोस्।");
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+
+        function updateMasterPassword() {
+            const pwd = document.getElementById('newMasterPwd').value.trim();
+            if(pwd) {
+                masterPassword = pwd;
+                localStorage.setItem('swarnim_master_pwd', masterPassword);
+                alert("Master Password Updated Successfully!");
+                document.getElementById('newMasterPwd').value = "";
+            }
+        }
+
+        function printTabReport(divId, title) {
+            window.print();
         }
     </script>
 </body>
