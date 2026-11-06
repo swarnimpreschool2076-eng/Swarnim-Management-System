@@ -193,36 +193,32 @@
 
         th { background: #f1f5f9; color: var(--primary); font-weight: 700; }
 
-        .badge-present { background-color: #dcfce7; color: #15803d; padding: 3px 8px; border-radius: 4px; font-weight: bold; display: inline-block; margin: 1px; }
-        .badge-absent { background-color: #fee2e2; color: #b91c1c; padding: 3px 8px; border-radius: 4px; font-weight: bold; display: inline-block; margin: 1px; }
-        .badge-leave { background-color: #fef9c3; color: #a16207; padding: 3px 8px; border-radius: 4px; font-weight: bold; display: inline-block; margin: 1px; }
+        .status-select-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .status-present { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .status-absent { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .status-leave { background-color: #fef9c3; color: #a16207; border: 1px solid #fef08a; }
+
+        .dot-green { height: 10px; width: 10px; background-color: #16a34a; border-radius: 50%; display: inline-block; }
+        .dot-red { height: 10px; width: 10px; background-color: #dc2626; border-radius: 50%; display: inline-block; }
+        .dot-yellow { height: 10px; width: 10px; background-color: #ca8a04; border-radius: 50%; display: inline-block; }
+
+        .badge-present { background-color: #dcfce7; color: #15803d; padding: 4px 8px; border-radius: 6px; font-weight: bold; display: inline-block; }
+        .badge-absent { background-color: #fee2e2; color: #b91c1c; padding: 4px 8px; border-radius: 6px; font-weight: bold; display: inline-block; }
+        .badge-leave { background-color: #fef9c3; color: #a16207; padding: 4px 8px; border-radius: 6px; font-weight: bold; display: inline-block; }
 
         .hidden { display: none !important; }
+        .clickable-name { color: var(--accent); cursor: pointer; text-decoration: underline; font-weight: bold; }
+        .clickable-name:hover { color: var(--primary); }
 
-        .export-box {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-
-        .import-box {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 14px;
-            margin-top: 15px;
-        }
-
-        .clickable-name {
-            color: var(--accent);
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        .clickable-name:hover {
-            color: var(--primary);
-        }
+        .export-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .import-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 14px; margin-top: 15px; }
 
         .modal-overlay {
             position: fixed;
@@ -233,7 +229,6 @@
             align-items: center;
             z-index: 10000;
         }
-
         .modal-content {
             background: white;
             padding: 24px;
@@ -349,18 +344,19 @@
 
         <!-- Navigation Tabs -->
         <div class="nav-tabs" id="navTabsContainer">
-            <button class="tab-btn active" id="btn_attTab" onclick="showTab('attTab', this)">1. Daily Attendance / हाजिरी</button>
+            <button class="tab-btn active" id="btn_attTab" onclick="showTab('attTab', this)">1. Daily Attendance</button>
+            <button class="tab-btn" id="btn_repTab" onclick="showTab('repTab', this)">1.1 Monthly/Yearly Report</button>
             <button class="tab-btn" id="btn_healthTab" onclick="showTab('healthTab', this)">2. Health, Lunch & Incident</button>
-            <button class="tab-btn" id="btn_casTab" onclick="showTab('casTab', this)">3. CAS Performance & GPA</button>
-            <button class="tab-btn" id="btn_dirTab" onclick="showTab('dirTab', this)">4. Student Directory / दर्ता</button>
-            <button class="tab-btn" id="btn_exportTab" onclick="showTab('exportTab', this)">5. Multi-Filter Data Export & Import</button>
-            <button class="tab-btn" id="btn_settingsTab" onclick="showTab('settingsTab', this)">6. Admin Settings / Password</button>
+            <button class="tab-btn" id="btn_casTab" onclick="showTab('casTab', this)">3. CAS & GPA</button>
+            <button class="tab-btn" id="btn_dirTab" onclick="showTab('dirTab', this)">4. Student Directory</button>
+            <button class="tab-btn" id="btn_exportTab" onclick="showTab('exportTab', this)">5. Export & Import</button>
+            <button class="tab-btn" id="btn_settingsTab" onclick="showTab('settingsTab', this)">6. Admin Settings</button>
         </div>
 
         <!-- TAB 1: DAILY ATTENDANCE -->
         <div id="attTab" class="tab-content">
             <div class="card" id="attCardPrintArea">
-                <h3 class="card-title">📝 Class-wise Daily Attendance</h3>
+                <h3 class="card-title">📝 Class-wise Daily Attendance & Reset/Edit</h3>
                 <div class="grid-2" style="margin-bottom:12px;">
                     <div>
                         <label>Select Class for Attendance:</label>
@@ -373,6 +369,9 @@
                             <option value="Two">Grade Two (2)</option>
                         </select>
                     </div>
+                    <div style="display:flex; align-items:flex-end;">
+                        <button class="btn btn-danger" onclick="resetCurrentDateAttendance()">🔄 Reset/Clear This Date Attendance</button>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table>
@@ -381,7 +380,6 @@
                                 <th>Roll</th>
                                 <th>Student Name</th>
                                 <th>Attendance Status</th>
-                                <th>This Month Summary</th>
                                 <th>Remarks</th>
                             </tr>
                         </thead>
@@ -391,6 +389,73 @@
                 <div style="margin-top:12px; display:flex; gap:10px;">
                     <button class="btn btn-success" onclick="saveAttendance()">Save Class Attendance</button>
                     <button class="btn btn-print" onclick="printTabReport('attCardPrintArea', 'Daily Attendance Sheet')">🖨️ Print Daily Attendance</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 1.1: MONTHLY & YEARLY ATTENDANCE REPORT -->
+        <div id="repTab" class="tab-content hidden">
+            <div class="card" id="reportCardArea">
+                <h3 class="card-title">📊 Monthly & Yearly Attendance Report Portal</h3>
+                <div class="grid-3" style="margin-bottom:12px;">
+                    <div>
+                        <label>Select Year:</label>
+                        <select id="reportYearSelect"></select>
+                    </div>
+                    <div>
+                        <label>Select Month or Full Year:</label>
+                        <select id="reportMonthSelect">
+                            <option value="ALL">Full Year (All Months Summary)</option>
+                            <option value="०१">वैशाख (०१)</option>
+                            <option value="०२">जेठ (०२)</option>
+                            <option value="०३">असार (०३)</option>
+                            <option value="०४">साउन (०४)</option>
+                            <option value="०५">भदौ (०५)</option>
+                            <option value="०६">असोज (०६)</option>
+                            <option value="०७">कार्तिक (०७)</option>
+                            <option value="०८">मंसिर (०८)</option>
+                            <option value="०९">पुष (०९)</option>
+                            <option value="१०">माघ (१०)</option>
+                            <option value="११">फागुन (११)</option>
+                            <option value="१२">चैत (१२)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Select Class:</label>
+                        <select id="reportClassSelect">
+                            <option value="ALL">All Classes</option>
+                            <option value="UKG">UKG</option>
+                            <option value="PG">PlayGroup (PG)</option>
+                            <option value="Nursery">Nursery</option>
+                            <option value="LKG">LKG</option>
+                            <option value="One">Grade One</option>
+                            <option value="Two">Grade Two</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <button class="btn btn-success" onclick="generateAttendanceReport()">📊 Generate Report</button>
+                    <button class="btn btn-print" onclick="exportReportCSV()">📥 Download Report CSV</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll</th>
+                                <th>Student Name</th>
+                                <th>Class</th>
+                                <th>Total Days</th>
+                                <th>Present (P)</th>
+                                <th>Absent (A)</th>
+                                <th>Leave (L)</th>
+                                <th>Attendance %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceReportTableBody">
+                            <tr><td colspan="8" style="text-align:center;">Please click 'Generate Report' to view summary.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -431,7 +496,7 @@
                 </div>
                 <div style="margin-top:12px; display:flex; gap:10px;">
                     <button class="btn btn-success" onclick="saveHealthData()">Save Health & Lunch Logs</button>
-                    <button class="btn btn-print" onclick="printTabReport('healthCardPrintArea', 'Daily Health & Lunch Tracker')">🖨️ Print Health & Lunch Sheet</button>
+                    <button class="btn btn-print" onclick="printTabReport('healthCardPrintArea', 'Daily Health & Lunch Tracker')">🖨️ Print Health Sheet</button>
                 </div>
             </div>
         </div>
@@ -440,16 +505,14 @@
         <div id="casTab" class="tab-content hidden">
             <div class="card" id="casCardPrintArea">
                 <h3 class="card-title">📊 CAS Evaluation & Nepal GPA Calculator (Scale 1-4)</h3>
-                
                 <div class="no-print" style="background:#f1f5f9; padding:12px; border-radius:8px; margin-bottom:15px;">
-                    <label><b>📚 Class Subjects Management (कक्षा अनुसार विषय थप्नुहोस्/हटाउनुहोस्):</b></label>
+                    <label><b>📚 Class Subjects Management (विषय थप्नुहोस्/हटाउनुहोस्):</b></label>
                     <div style="display:flex; gap:8px; margin-top:5px;">
-                        <input type="text" id="newSubjectName" placeholder="Add New Subject (e.g. English, Math)" style="max-width:250px;">
+                        <input type="text" id="newSubjectName" placeholder="Add Subject (e.g. English, Math)" style="max-width:250px;">
                         <button class="btn" onclick="addSubjectToClass()">+ Add Subject</button>
                     </div>
                     <div id="classListSubjects" style="margin-top:8px; font-size:12px;"></div>
                 </div>
-
                 <div class="grid-2" style="margin-bottom:12px;">
                     <div>
                         <label>Select Class:</label>
@@ -464,15 +527,14 @@
                     </div>
                 </div>
                 <p class="no-print" style="font-size:11px; color:#64748b; margin-top:-5px;">* नोट: विषय अनुसार अङ्क हाल्न विद्यार्थीको नाम (Name) मा क्लिक गर्नुहोस्।</p>
-                
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
                                 <th>Roll & Name (Click Name for Subjects)</th>
-                                <th>Classwork (Avg)</th>
-                                <th>Homework (Avg)</th>
-                                <th>Extra Activities (Avg)</th>
+                                <th>Classwork</th>
+                                <th>Homework</th>
+                                <th>Extra Activities</th>
                                 <th>Total %</th>
                                 <th>GPA & Grade</th>
                             </tr>
@@ -482,12 +544,12 @@
                 </div>
                 <div style="margin-top:12px; display:flex; gap:10px;">
                     <button class="btn btn-success" onclick="saveCasData()">Save CAS Evaluation</button>
-                    <button class="btn btn-print" onclick="printTabReport('casCardPrintArea', 'Classwise CAS Evaluation Summary')">🖨️ Print Class Grade Sheet</button>
+                    <button class="btn btn-print" onclick="printTabReport('casCardPrintArea', 'Classwise CAS Summary')">🖨️ Print Grade Sheet</button>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 4: STUDENT DIRECTORY (Admin Only) -->
+        <!-- TAB 4: STUDENT DIRECTORY -->
         <div id="dirTab" class="tab-content hidden">
             <div class="card" id="regCard">
                 <h3 class="card-title" id="formCardTitle">➕ Register New Student Profile</h3>
@@ -547,7 +609,7 @@
             </div>
 
             <div class="card">
-                <h3 class="card-title">📋 Registered Student Directory (Edit & Manage)</h3>
+                <h3 class="card-title">📋 Registered Student Directory</h3>
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -568,12 +630,12 @@
             </div>
         </div>
 
-        <!-- TAB 5: MULTI-FILTER DATA EXPORT & IMPORT -->
+        <!-- TAB 5: EXPORT & IMPORT -->
         <div id="exportTab" class="tab-content hidden">
             <div class="card">
                 <h3 class="card-title">📥 Multi-Filter CSV Data Export</h3>
                 <div class="export-box">
-                    <label style="font-size:14px; color:var(--primary);"><b>Export Option Select Karein:</b></label>
+                    <label style="font-size:14px; color:var(--primary);"><b>Export Option:</b></label>
                     <select id="exportTypeSelect" onchange="toggleExportOptions()" style="font-size:14px; font-weight:bold; padding:8px;">
                         <option value="class">1. Class-wise Export</option>
                         <option value="month">2. Month-wise Export</option>
@@ -582,68 +644,22 @@
                         <option value="master">5. Full Master Export</option>
                     </select>
                 </div>
-
-                <div class="grid-2" style="margin-top:15px;">
-                    <div id="exportClassGroup">
-                        <label>कक्षा छान्नुहोस्:</label>
-                        <select id="exportClassSelect">
-                            <option value="PG">PlayGroup (PG)</option>
-                            <option value="Nursery">Nursery</option>
-                            <option value="LKG">LKG</option>
-                            <option value="UKG" selected>UKG</option>
-                            <option value="One">Grade One (1)</option>
-                            <option value="Two">Grade Two (2)</option>
-                        </select>
-                    </div>
-
-                    <div id="exportMonthGroup" class="hidden">
-                        <label>महिना छान्नुहोस्:</label>
-                        <select id="exportMonthSelect">
-                            <option value="०१">वैशाख (०१)</option>
-                            <option value="०२">जेठ (०२)</option>
-                            <option value="०३">असार (०३)</option>
-                            <option value="०४">साउन (०४)</option>
-                            <option value="०५">भदौ (०५)</option>
-                            <option value="०६">असोज (०६)</option>
-                            <option value="०७" selected>कार्तिक (०७)</option>
-                            <option value="०८">मंसिर (०८)</option>
-                            <option value="०९">पुष (०९)</option>
-                            <option value="१०">माघ (१०)</option>
-                            <option value="११">फागुन (११)</option>
-                            <option value="१२">चैत (१२)</option>
-                        </select>
-                    </div>
-
-                    <div id="exportDayGroup" class="hidden">
-                        <label>गते छान्नुहोस्:</label>
-                        <select id="exportDaySelect"></select>
-                    </div>
-
-                    <div id="exportStudentGroup" class="hidden">
-                        <label>विद्यार्थीको नाम छान्नुहोस्:</label>
-                        <select id="exportStudentSelect"></select>
-                    </div>
-                </div>
-
-                <button class="btn btn-success" style="margin-top:20px; font-size:15px; padding:12px 24px;" onclick="runCustomExport()">📥 Download Selected CSV Report</button>
+                <button class="btn btn-success" style="margin-top:10px;" onclick="runCustomExport()">📥 Download Selected CSV Report</button>
             </div>
 
-            <!-- BACKUP & IMPORT FEATURE -->
             <div class="card import-box">
                 <h3 class="card-title" style="color:#1d4ed8;">🔄 Backup & Import Full System Data</h3>
-                <p style="font-size:12px; color:#334155;">कम्प्युटर वा मोबाइलमा भएको सबै डेटा (विद्यार्थी नामावली, हाजिरी, र रिजल्ट) ब्याकअप फाइलमार्फत अनलाइन लाइभ साइटमा हाल्न वा सेभ गर्न तलको बटन प्रयोग गर्नुहोस्:</p>
-                
                 <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;">
-                    <button class="btn btn-success" style="padding:10px 18px; font-size:14px;" onclick="exportFullJSONBackup()">📤 1. Download System Backup File (.json)</button>
-                    <label class="btn btn-warning" style="padding:10px 18px; font-size:14px; cursor:pointer; display:inline-block; margin:0;">
-                        📥 2. Import Backup Data File (.json / .csv)
+                    <button class="btn btn-success" onclick="exportFullJSONBackup()">📤 1. Download System Backup (.json)</button>
+                    <label class="btn btn-warning" style="cursor:pointer; display:inline-block; margin:0; padding:9px 16px;">
+                        📥 2. Import Backup Data File (.json)
                         <input type="file" id="importFileInput" accept=".json,.csv" onchange="importSystemBackupData(event)" style="display:none;">
                     </label>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 6: ADMIN SETTINGS & PASSWORD CHANGE -->
+        <!-- TAB 6: ADMIN SETTINGS -->
         <div id="settingsTab" class="tab-content hidden">
             <div class="card">
                 <h3 class="card-title">🔐 Main Master Admin Password Management</h3>
@@ -679,533 +695,606 @@
             <div style="margin-top:15px; text-align:right; display:flex; justify-content:flex-end; gap:8px;" class="no-print">
                 <button class="btn btn-danger" onclick="closeStudentModal()">Cancel</button>
                 <button class="btn btn-success" onclick="saveStudentModalMarks(false)">Save Marks</button>
-                <button class="btn btn-print" onclick="saveStudentModalMarks(true)">🖨️ Save & Print Grade Sheet</button>
             </div>
         </div>
     </div>
 
+    <!-- SCRIPT SECTION -->
     <script>
-        const finalYears = ["२०८०", "२०८१", "२०८२", "२०८३", "२०८४", "२०८५", "२०८६", "२०८७", "२०८८", "२०८९", "२०९०", "२०९१", "२०९२", "२०९३", "२०९४", "२०९५", "२०९६", "२०९७", "२०९८", "२०९९"];
+        const finalYears = ["२०८०", "२०८१", "२०८२", "२०८३", "२०८४", "२०८५", "२०८६", "२०८७", "२०८८", "२०८९", "२०९०"];
         const actualDevDigits = ['०', '०१', '०२', '०३', '०४', '०५', '०६', '०७', '०८', '०९', '१०', '११', '१२', '१३', '१४', '१५', '१६', '१७', '१८', '१९', '२०', '२१', '२२', '२३', '२४', '२५', '२६', '२७', '२८', '२९', '३०', '३१', '३२'];
 
-        let currentUserRole = null;
         let masterPassword = localStorage.getItem('swarnim_master_pwd') || "swarnim123";
-        let teacherPassword = "teacher123";
-
-        let students = JSON.parse(localStorage.getItem('swarnim_pwa_students')) || [
-            { id: 1, name: "Pasang Lhamu Sherpa", class: "UKG", roll: "1", dob: "2077-02-10", gender: "Female", blood: "A+", parent: "Mingma Sherpa", phone: "9842854321" },
-            { id: 2, name: "Aarav Karki", class: "UKG", roll: "2", dob: "2077-04-15", gender: "Male", blood: "B+", parent: "Ramesh Karki", phone: "9812345678" }
-        ];
-
+        let students = JSON.parse(localStorage.getItem('swarnim_pwa_students')) || [];
         let records = JSON.parse(localStorage.getItem('swarnim_pwa_records')) || {};
-        
-        let classSubjects = JSON.parse(localStorage.getItem('swarnim_class_subjects')) || {
-            "UKG": ["English", "Nepali", "Maths", "Science"],
-            "PG": ["Rhymes & Drawing", "English Oral"],
-            "Nursery": ["English", "Nepali", "Maths"],
-            "LKG": ["English", "Nepali", "Maths", "GK"],
-            "One": ["English", "Nepali", "Maths", "Science", "Social"],
-            "Two": ["English", "Nepali", "Maths", "Science", "Social"]
+        let healthRecords = JSON.parse(localStorage.getItem('swarnim_pwa_health')) || {};
+        let casRecords = JSON.parse(localStorage.getItem('swarnim_pwa_cas')) || {};
+        let classSubjects = JSON.parse(localStorage.getItem('swarnim_pwa_subjects')) || {
+            "UKG": ["English", "Nepali", "Math", "General Knowledge", "Drawing"],
+            "PG": ["Rhymes", "Colors", "Counting", "Drawing"],
+            "Nursery": ["Alphabet", "Numbers", "Rhymes", "Drawing"],
+            "LKG": ["English", "Nepali", "Math", "Oral"],
+            "One": ["English", "Nepali", "Math", "Science", "Social"],
+            "Two": ["English", "Nepali", "Math", "Science", "Social"]
         };
 
         let currentActiveStudentId = null;
 
-        window.onload = function() {
-            populateYearSelect();
-            populateGateSelect();
-            renderStudentsTable();
-            populateStudentExportDropdown();
-            toggleExportOptions();
-        };
+        function initDateSelectors() {
+            let ySel = document.getElementById('nepYearSelect');
+            let repY = document.getElementById('reportYearSelect');
+            if(ySel) ySel.innerHTML = ''; 
+            if(repY) repY.innerHTML = '';
+            finalYears.forEach(y => {
+                if(ySel) ySel.innerHTML += `<option value="${y}" ${y==="२०८३"?"selected":""}>${y}</option>`;
+                if(repY) repY.innerHTML += `<option value="${y}" ${y==="२०८३"?"selected":""}>${y}</option>`;
+            });
 
-        function populateYearSelect() {
-            const ySel = document.getElementById('nepYearSelect');
-            if(ySel) {
-                ySel.innerHTML = "";
-                finalYears.forEach(y => {
-                    ySel.innerHTML += `<option value="${y}" ${y==='२०८३'?'selected':''}>${y}</option>`;
-                });
-            }
-        }
-
-        function populateGateSelect() {
-            const gSel = document.getElementById('nepGateSelect');
-            const expGate = document.getElementById('exportDaySelect');
+            let gSel = document.getElementById('nepGateSelect');
             if(gSel) {
-                gSel.innerHTML = "";
-                if(expGate) expGate.innerHTML = "";
+                gSel.innerHTML = '';
                 for(let i=1; i<=32; i++) {
-                    let dev = actualDevDigits[i];
-                    gSel.innerHTML += `<option value="${dev}">${dev}</option>`;
-                    if(expGate) expGate.innerHTML += `<option value="${dev}">${dev}</option>`;
+                    let val = actualDevDigits[i];
+                    gSel.innerHTML += `<option value="${val}" ${i===18?"selected":""}>${val} गते</option>`;
                 }
             }
         }
 
         function validateLogin() {
-            const role = document.getElementById('loginRole').value;
-            const pwd = document.getElementById('loginPasswordInput').value;
-
-            if(role === 'master') {
-                if(pwd === masterPassword) {
-                    currentUserRole = 'master';
-                    document.getElementById('loginScreen').style.display = 'none';
-                    alert("Welcome Master Admin!");
-                } else {
-                    alert("Incorrect Master Password!");
-                }
+            let pwd = document.getElementById('loginPasswordInput').value;
+            if(pwd === masterPassword) {
+                document.getElementById('loginScreen').classList.add('hidden');
             } else {
-                if(pwd === teacherPassword) {
-                    currentUserRole = 'teacher';
-                    document.getElementById('loginScreen').style.display = 'none';
-                    alert("Welcome Teacher!");
-                } else {
-                    alert("Incorrect Teacher Password!");
-                }
+                alert('गलत पासवर्ड! कृपया सहि पासवर्ड हाल्नुहोस्।');
             }
         }
 
         function logoutSession() {
-            currentUserRole = null;
-            document.getElementById('loginPasswordInput').value = "";
-            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('loginPasswordInput').value = '';
         }
 
-        function showTab(tabId, btn) {
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(c => c.classList.add('hidden'));
-            
-            const btns = document.querySelectorAll('.tab-btn');
-            btns.forEach(b => b.classList.remove('active'));
-
+        function showTab(tabId, btnEl) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.remove('hidden');
-            btn.classList.add('active');
-
+            btnEl.classList.add('active');
             if(tabId === 'attTab') renderAttendanceList();
             if(tabId === 'healthTab') renderHealthList();
             if(tabId === 'casTab') renderCasList();
-            if(tabId === 'dirTab') renderStudentsTable();
+            if(tabId === 'dirTab') renderStudentDirectory();
+        }
+
+        function getDateKey() {
+            let y = document.getElementById('nepYearSelect') ? document.getElementById('nepYearSelect').value : '२०८३';
+            let m = document.getElementById('nepMonthSelect') ? document.getElementById('nepMonthSelect').value : '०७';
+            let d = document.getElementById('nepGateSelect') ? document.getElementById('nepGateSelect').value : '१८';
+            return `${y}-${m}-${d}`;
         }
 
         function onDateChange() {
             renderAttendanceList();
             renderHealthList();
-            renderCasList();
         }
 
-        /* DIRECTORY & STUDENT MANAGEMENT */
-        function registerStudent() {
-            const name = document.getElementById('regName').value.trim();
-            const cls = document.getElementById('regClass').value;
-            const roll = document.getElementById('regRoll').value.trim();
-            const dob = document.getElementById('regDob').value.trim();
-            const gender = document.getElementById('regGender').value;
-            const blood = document.getElementById('regBlood').value.trim();
-            const parent = document.getElementById('regParent').value.trim();
-            const phone = document.getElementById('regPhone').value.trim();
-            const editId = document.getElementById('editStudentId').value;
+        // --- 1. ATTENDANCE ---
+        function renderAttendanceList() {
+            let cls = document.getElementById('attClassFilter').value;
+            let tbody = document.getElementById('attendanceTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
 
-            if(!name || !roll) {
-                alert("Please enter Name and Roll Number!");
+            let classStudents = students.filter(s => s.class === cls);
+            let dateKey = getDateKey();
+            let dayData = records[dateKey] || {};
+
+            if(classStudents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">यस कक्षामा कुनै विद्यार्थी दर्ता छैनन्।</td></tr>`;
                 return;
             }
 
-            if(editId) {
-                const s = students.find(item => item.id == editId);
-                if(s) {
-                    s.name = name; s.class = cls; s.roll = roll; s.dob = dob;
-                    s.gender = gender; s.blood = blood; s.parent = parent; s.phone = phone;
-                }
-            } else {
-                const newId = Date.now();
-                students.push({ id: newId, name, class: cls, roll, dob, gender, blood, parent, phone });
-            }
-
-            localStorage.setItem('swarnim_pwa_students', JSON.stringify(students));
-            resetStudentForm();
-            renderStudentsTable();
-            populateStudentExportDropdown();
-            alert("Student Profile Saved Successfully!");
-        }
-
-        function renderStudentsTable() {
-            const tbody = document.getElementById('studentTableBody');
-            if(!tbody) return;
-            tbody.innerHTML = "";
-            students.forEach(s => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${s.roll}</td>
-                        <td><b>${s.name}</b></td>
-                        <td>${s.class}</td>
-                        <td>${s.gender}</td>
-                        <td>${s.parent || '-'}</td>
-                        <td>${s.phone || '-'}</td>
-                        <td>${s.blood || '-'}</td>
-                        <td>
-                            <button class="btn btn-warning" style="padding:3px 8px; font-size:11px;" onclick="editStudent(${s.id})">Edit</button>
-                            <button class="btn btn-danger" style="padding:3px 8px; font-size:11px;" onclick="deleteStudent(${s.id})">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function editStudent(id) {
-            const s = students.find(item => item.id == id);
-            if(!s) return;
-            document.getElementById('editStudentId').value = s.id;
-            document.getElementById('regName').value = s.name;
-            document.getElementById('regClass').value = s.class;
-            document.getElementById('regRoll').value = s.roll;
-            document.getElementById('regDob').value = s.dob || '';
-            document.getElementById('regGender').value = s.gender;
-            document.getElementById('regBlood').value = s.blood || '';
-            document.getElementById('regParent').value = s.parent || '';
-            document.getElementById('regPhone').value = s.phone || '';
-
-            document.getElementById('formCardTitle').innerText = "✏️ Edit Student Profile";
-            document.getElementById('cancelEditBtn').classList.remove('hidden');
-        }
-
-        function cancelEditStudent() {
-            resetStudentForm();
-        }
-
-        function resetStudentForm() {
-            document.getElementById('editStudentId').value = "";
-            document.getElementById('regName').value = "";
-            document.getElementById('regRoll').value = "";
-            document.getElementById('regDob').value = "";
-            document.getElementById('regBlood').value = "";
-            document.getElementById('regParent').value = "";
-            document.getElementById('regPhone').value = "";
-            document.getElementById('formCardTitle').innerText = "➕ Register New Student Profile";
-            document.getElementById('cancelEditBtn').classList.add('hidden');
-        }
-
-        function deleteStudent(id) {
-            if(confirm("Are you sure you want to delete this student profile?")) {
-                students = students.filter(s => s.id != id);
-                localStorage.setItem('swarnim_pwa_students', JSON.stringify(students));
-                renderStudentsTable();
-                populateStudentExportDropdown();
-            }
-        }
-
-        /* ATTENDANCE FUNCTIONS WITH MONTHLY SUMMARY */
-        function getCurrentDateKey() {
-            const y = document.getElementById('nepYearSelect').value;
-            const m = document.getElementById('nepMonthSelect').value;
-            const d = document.getElementById('nepGateSelect').value;
-            return `${y}-${m}-${d}`;
-        }
-
-        function getMonthlyAttendanceSummary(studentId) {
-            const y = document.getElementById('nepYearSelect').value;
-            const m = document.getElementById('nepMonthSelect').value;
-            
-            let presentCount = 0;
-            let absentCount = 0;
-            let leaveCount = 0;
-
-            // Loop through all dates saved in records for this year and month
-            for (let dateKey in records) {
-                if (dateKey.startsWith(`${y}-${m}-`)) {
-                    if (records[dateKey][studentId]) {
-                        const status = records[dateKey][studentId].att;
-                        if (status === 'Present') presentCount++;
-                        else if (status === 'Absent') absentCount++;
-                        else if (status === 'Leave') leaveCount++;
-                    }
-                }
-            }
-
-            return `
-                <span class="badge-present">P: ${presentCount}</span>
-                <span class="badge-absent">A: ${absentCount}</span>
-                <span class="badge-leave">L: ${leaveCount}</span>
-            `;
-        }
-
-        function renderAttendanceList() {
-            const cls = document.getElementById('attClassFilter').value;
-            const tbody = document.getElementById('attendanceTableBody');
-            if(!tbody) return;
-            tbody.innerHTML = "";
-
-            const dateKey = getCurrentDateKey();
-            const classStudents = students.filter(s => s.class === cls);
-
             classStudents.forEach(s => {
-                const sRec = (records[dateKey] && records[dateKey][s.id]) ? records[dateKey][s.id] : {};
-                const attStatus = sRec.att || "Present";
-                const remarks = sRec.attRemarks || "";
-                const monthlySummaryHTML = getMonthlyAttendanceSummary(s.id);
-
+                let st = dayData[s.id] || 'P';
                 tbody.innerHTML += `
                     <tr>
-                        <td>${s.roll}</td>
-                        <td><b>${s.name}</b></td>
+                        <td>${s.roll || ''}</td>
+                        <td>${s.name}</td>
                         <td>
-                            <select id="att_status_${s.id}">
-                                <option value="Present" ${attStatus==='Present'?'selected':''}>Present (उपस्थित)</option>
-                                <option value="Absent" ${attStatus==='Absent'?'selected':''}>Absent (अनुपस्थित)</option>
-                                <option value="Leave" ${attStatus==='Leave'?'selected':''}>Leave (बिदा)</option>
-                            </select>
+                            <div style="display:flex; gap:12px; align-items:center;">
+                                <label style="display:inline-flex; align-items:center; gap:4px; cursor:pointer;"><input type="radio" name="att_${s.id}" value="P" ${st==='P'?'checked':''}> <span class="status-select-wrapper status-present"><span class="dot-green"></span> Present</span></label>
+                                <label style="display:inline-flex; align-items:center; gap:4px; cursor:pointer;"><input type="radio" name="att_${s.id}" value="A" ${st==='A'?'checked':''}> <span class="status-select-wrapper status-absent"><span class="dot-red"></span> Absent</span></label>
+                                <label style="display:inline-flex; align-items:center; gap:4px; cursor:pointer;"><input type="radio" name="att_${s.id}" value="L" ${st==='L'?'checked':''}> <span class="status-select-wrapper status-leave"><span class="dot-yellow"></span> Leave</span></label>
+                            </div>
                         </td>
-                        <td>${monthlySummaryHTML}</td>
-                        <td><input type="text" id="att_rem_${s.id}" value="${remarks}" placeholder="Remarks"></td>
+                        <td><input type="text" id="rem_${s.id}" value="${dayData['rem_'+s.id] || ''}" placeholder="Remarks"></td>
                     </tr>
                 `;
             });
         }
 
         function saveAttendance() {
-            const dateKey = getCurrentDateKey();
+            let cls = document.getElementById('attClassFilter').value;
+            let classStudents = students.filter(s => s.class === cls);
+            let dateKey = getDateKey();
+
             if(!records[dateKey]) records[dateKey] = {};
 
-            const cls = document.getElementById('attClassFilter').value;
-            const classStudents = students.filter(s => s.class === cls);
-
             classStudents.forEach(s => {
-                if(!records[dateKey][s.id]) records[dateKey][s.id] = {};
-                records[dateKey][s.id].att = document.getElementById(`att_status_${s.id}`).value;
-                records[dateKey][s.id].attRemarks = document.getElementById(`att_rem_${s.id}`).value;
+                let rad = document.querySelector(`input[name="att_${s.id}"]:checked`);
+                if(rad) records[dateKey][s.id] = rad.value;
+                let rem = document.getElementById(`rem_${s.id}`).value;
+                if(rem) records[dateKey]['rem_'+s.id] = rem;
             });
 
             localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
-            alert("Daily Attendance Saved!");
-            renderAttendanceList(); // Re-render to update summary instantly
+            alert('✅ हाजिरी सफलतापूर्वक सेभ भयो!');
         }
 
-        /* HEALTH & LUNCH FUNCTIONS */
-        function renderHealthList() {
-            const cls = document.getElementById('healthClassFilter').value;
-            const tbody = document.getElementById('healthTableBody');
-            if(!tbody) return;
-            tbody.innerHTML = "";
+        function resetCurrentDateAttendance() {
+            let dateKey = getDateKey();
+            if(confirm(`के तपाई ${dateKey} को हाजिरी Clear/Reset गर्न चाहनुहुन्छ?`)) {
+                if(records[dateKey]) {
+                    delete records[dateKey];
+                    localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
+                }
+                renderAttendanceList();
+                alert('🔄 हाजिरी रिसेट भयो!');
+            }
+        }
 
-            const dateKey = getCurrentDateKey();
-            const classStudents = students.filter(s => s.class === cls);
+        // --- 1.1 MONTHLY & YEARLY REPORT ---
+        function generateAttendanceReport() {
+            let selYear = document.getElementById('reportYearSelect').value;
+            let selMonth = document.getElementById('reportMonthSelect').value;
+            let selClass = document.getElementById('reportClassSelect').value;
+            let tbody = document.getElementById('attendanceReportTableBody');
+            tbody.innerHTML = '';
 
-            classStudents.forEach(s => {
-                const hRec = (records[dateKey] && records[dateKey][s.id]) ? records[dateKey][s.id] : {};
+            let targetStudents = students;
+            if(selClass !== 'ALL') {
+                targetStudents = students.filter(s => s.class === selClass);
+            }
+
+            if(targetStudents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">कुनै विद्यार्थी फेला परेनन्।</td></tr>`;
+                return;
+            }
+
+            targetStudents.forEach(s => {
+                let totalDays = 0;
+                let presentCount = 0;
+                let absentCount = 0;
+                let leaveCount = 0;
+
+                for(let dateKey in records) {
+                    let parts = dateKey.split('-');
+                    if(parts.length >= 2) {
+                        let yPart = parts[0];
+                        let mPart = parts[1];
+
+                        if(yPart === selYear) {
+                            if(selMonth === 'ALL' || mPart === selMonth) {
+                                let dayMap = records[dateKey];
+                                if(dayMap && dayMap[s.id]) {
+                                    totalDays++;
+                                    let status = dayMap[s.id];
+                                    if(status === 'P') presentCount++;
+                                    else if(status === 'A') absentCount++;
+                                    else if(status === 'L') leaveCount++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                let percentage = totalDays > 0 ? ((presentCount / totalDays) * 100).toFixed(1) + '%' : '0%';
+
                 tbody.innerHTML += `
                     <tr>
-                        <td><b>${s.roll}. ${s.name}</b></td>
-                        <td><select id="h_uni_${s.id}"><option value="OK" ${hRec.uni==='OK'?'selected':''}>OK</option><option value="Dirty" ${hRec.uni==='Dirty'?'selected':''}>Dirty</option></select></td>
-                        <td><select id="h_nail_${s.id}"><option value="OK" ${hRec.nail==='OK'?'selected':''}>OK</option><option value="Long/Dirty" ${hRec.nail==='Long/Dirty'?'selected':''}>Long</option></select></td>
-                        <td><select id="h_bot_${s.id}"><option value="Yes" ${hRec.bot==='Yes'?'selected':''}>Yes</option><option value="No" ${hRec.bot==='No'?'selected':''}>No</option></select></td>
-                        <td><select id="h_l1_${s.id}"><option value="Eaten" ${hRec.l1==='Eaten'?'selected':''}>Eaten</option><option value="Left" ${hRec.l1==='Left'?'selected':''}>Left</option></select></td>
-                        <td><select id="h_l2_${s.id}"><option value="Eaten" ${hRec.l2==='Eaten'?'selected':''}>Eaten</option><option value="Left" ${hRec.l2==='Left'?'selected':''}>Left</option></select></td>
-                        <td><input type="text" id="h_inc_${s.id}" value="${hRec.inc || ''}" placeholder="Incident"></td>
-                        <td><input type="text" id="h_rem_${s.id}" value="${hRec.hRem || ''}" placeholder="Remarks"></td>
+                        <td>${s.roll || ''}</td>
+                        <td><b>${s.name}</b></td>
+                        <td>${s.class}</td>
+                        <td>${totalDays} दिन</td>
+                        <td><span class="badge-present"><span class="dot-green"></span> ${presentCount}</span></td>
+                        <td><span class="badge-absent"><span class="dot-red"></span> ${absentCount}</span></td>
+                        <td><span class="badge-leave"><span class="dot-yellow"></span> ${leaveCount}</span></td>
+                        <td><b>${percentage}</b></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function exportReportCSV() {
+            let csv = "Roll,Student Name,Class,Total Days,Present,Absent,Leave,Percentage\n";
+            let rows = document.querySelectorAll("#attendanceReportTableBody tr");
+            rows.forEach(r => {
+                let cols = r.querySelectorAll("td");
+                if(cols.length >= 8) {
+                    csv += `"${cols[0].innerText}","${cols[1].innerText}","${cols[2].innerText}","${cols[3].innerText}","${cols[4].innerText}","${cols[5].innerText}","${cols[6].innerText}","${cols[7].innerText}"\n`;
+                }
+            });
+            let blob = new Blob([csv], {type: 'text/csv'});
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = `Attendance_Report.csv`;
+            a.click();
+        }
+
+        // --- 2. HEALTH & LUNCH ---
+        function renderHealthList() {
+            let cls = document.getElementById('healthClassFilter').value;
+            let tbody = document.getElementById('healthTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            let classStudents = students.filter(s => s.class === cls);
+            let dateKey = getDateKey();
+            let dayHealth = healthRecords[dateKey] || {};
+
+            if(classStudents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">यस कक्षामा कुनै विद्यार्थी छैनन्।</td></tr>`;
+                return;
+            }
+
+            classStudents.forEach(s => {
+                let h = dayHealth[s.id] || { uni: 'Yes', nail: 'Clean', bot: 'Yes', l1: 'Full', l2: 'Full', inc: 'None', rem: '' };
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${s.roll || ''}.</b> ${s.name}</td>
+                        <td><select id="h_uni_${s.id}"><option value="Yes" ${h.uni==='Yes'?'selected':''}>Yes</option><option value="No" ${h.uni==='No'?'selected':''}>No</option></select></td>
+                        <td><select id="h_nail_${s.id}"><option value="Clean" ${h.nail==='Clean'?'selected':''}>Clean</option><option value="Dirty" ${h.nail==='Dirty'?'selected':''}>Dirty</option></select></td>
+                        <td><select id="h_bot_${s.id}"><option value="Yes" ${h.bot==='Yes'?'selected':''}>Yes</option><option value="No" ${h.bot==='No'?'selected':''}>No</option></select></td>
+                        <td><select id="h_l1_${s.id}"><option value="Full" ${h.l1==='Full'?'selected':''}>Full</option><option value="Half" ${h.l1==='Half'?'selected':''}>Half</option><option value="None" ${h.l1==='None'?'selected':''}>None</option></select></td>
+                        <td><select id="h_l2_${s.id}"><option value="Full" ${h.l2==='Full'?'selected':''}>Full</option><option value="Half" ${h.l2==='Half'?'selected':''}>Half</option><option value="None" ${h.l2==='None'?'selected':''}>None</option></select></td>
+                        <td><input type="text" id="h_inc_${s.id}" value="${h.inc || 'None'}" style="width:90px;"></td>
+                        <td><input type="text" id="h_rem_${s.id}" value="${h.rem || ''}" style="width:110px;"></td>
                     </tr>
                 `;
             });
         }
 
         function saveHealthData() {
-            const dateKey = getCurrentDateKey();
-            if(!records[dateKey]) records[dateKey] = {};
+            let cls = document.getElementById('healthClassFilter').value;
+            let classStudents = students.filter(s => s.class === cls);
+            let dateKey = getDateKey();
 
-            const cls = document.getElementById('healthClassFilter').value;
-            const classStudents = students.filter(s => s.class === cls);
-
-            classStudents.forEach(s => {
-                if(!records[dateKey][s.id]) records[dateKey][s.id] = {};
-                records[dateKey][s.id].uni = document.getElementById(`h_uni_${s.id}`).value;
-                records[dateKey][s.id].nail = document.getElementById(`h_nail_${s.id}`).value;
-                records[dateKey][s.id].bot = document.getElementById(`h_bot_${s.id}`).value;
-                records[dateKey][s.id].l1 = document.getElementById(`h_l1_${s.id}`).value;
-                records[dateKey][s.id].l2 = document.getElementById(`h_l2_${s.id}`).value;
-                records[dateKey][s.id].inc = document.getElementById(`h_inc_${s.id}`).value;
-                records[dateKey][s.id].hRem = document.getElementById(`h_rem_${s.id}`).value;
-            });
-
-            localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
-            alert("Health & Lunch Logs Saved!");
-        }
-
-        /* CAS EVALUATION & MODAL FUNCTIONS */
-        function renderCasList() {
-            const cls = document.getElementById('casClassFilter').value;
-            const tbody = document.getElementById('casTableBody');
-            if(!tbody) return;
-            tbody.innerHTML = "";
-
-            renderClassSubjectsList(cls);
-            const classStudents = students.filter(s => s.class === cls);
+            if(!healthRecords[dateKey]) healthRecords[dateKey] = {};
 
             classStudents.forEach(s => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><span class="clickable-name" onclick="openStudentSubjectModal(${s.id})"><b>${s.roll}. ${s.name}</b></span></td>
-                        <td>${s.cwAvg || '3.5'}</td>
-                        <td>${s.hwAvg || '3.2'}</td>
-                        <td>${s.eaAvg || '3.8'}</td>
-                        <td><b>${s.totalPct || '85'}%</b></td>
-                        <td><b style="color:var(--success);">${s.gpa || '3.6 (A+)'}</b></td>
-                    </tr>
-                `;
+                healthRecords[dateKey][s.id] = {
+                    uni: document.getElementById(`h_uni_${s.id}`).value,
+                    nail: document.getElementById(`h_nail_${s.id}`).value,
+                    bot: document.getElementById(`h_bot_${s.id}`).value,
+                    l1: document.getElementById(`h_l1_${s.id}`).value,
+                    l2: document.getElementById(`h_l2_${s.id}`).value,
+                    inc: document.getElementById(`h_inc_${s.id}`).value,
+                    rem: document.getElementById(`h_rem_${s.id}`).value
+                };
             });
+
+            localStorage.setItem('swarnim_pwa_health', JSON.stringify(healthRecords));
+            alert('✅ Health & Lunch logs successfully saved!');
         }
 
-        function renderClassSubjectsList(cls) {
-            const container = document.getElementById('classListSubjects');
+        // --- 3. CAS PERFORMANCE & GPA ---
+        function renderClassSubjectsManager() {
+            let cls = document.getElementById('casClassFilter').value;
+            let container = document.getElementById('classListSubjects');
             if(!container) return;
-            const subs = classSubjects[cls] || [];
-            container.innerHTML = `Subjects in <b>${cls}</b>: ` + subs.map(sub => `<span style="background:white; padding:2px 6px; border-radius:4px; margin-right:4px; border:1px solid #cbd5e1;">${sub}</span>`).join(' ');
+            let subs = classSubjects[cls] || [];
+            container.innerHTML = `<b>Current Subjects for ${cls}:</b> ` + subs.map((sub, idx) => `
+                <span style="background:#e2e8f0; padding:2px 6px; border-radius:4px; margin-right:5px; display:inline-block; margin-top:3px;">
+                    ${sub} <button onclick="removeSubjectFromClass('${cls}', ${idx})" style="border:none; background:none; color:red; cursor:pointer; font-weight:bold;">×</button>
+                </span>
+            `).join('');
         }
 
         function addSubjectToClass() {
-            const cls = document.getElementById('casClassFilter').value;
-            const name = document.getElementById('newSubjectName').value.trim();
-            if(!name) return;
+            let cls = document.getElementById('casClassFilter').value;
+            let subInput = document.getElementById('newSubjectName');
+            let subName = subInput.value.trim();
+            if(!subName) { alert('कृपया विषयको नाम लेख्नुहोस्!'); return; }
+
             if(!classSubjects[cls]) classSubjects[cls] = [];
-            if(!classSubjects[cls].includes(name)) {
-                classSubjects[cls].push(name);
-                localStorage.setItem('swarnim_class_subjects', JSON.stringify(classSubjects));
-                document.getElementById('newSubjectName').value = "";
+            classSubjects[cls].push(subName);
+            localStorage.setItem('swarnim_pwa_subjects', JSON.stringify(classSubjects));
+            subInput.value = '';
+            renderClassSubjectsManager();
+            renderCasList();
+            alert(`✅ ${subName} subject added to ${cls}!`);
+        }
+
+        function removeSubjectFromClass(cls, index) {
+            if(confirm('के तपाईं यो विषय हटाउन चाहनुहुन्छ?')) {
+                classSubjects[cls].splice(index, 1);
+                localStorage.setItem('swarnim_pwa_subjects', JSON.stringify(classSubjects));
+                renderClassSubjectsManager();
                 renderCasList();
             }
         }
 
-        function openStudentSubjectModal(studentId) {
-            currentActiveStudentId = studentId;
-            const s = students.find(item => item.id == studentId);
-            if(!s) return;
+        function renderCasList() {
+            renderClassSubjectsManager();
+            let cls = document.getElementById('casClassFilter').value;
+            let tbody = document.getElementById('casTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
 
-            document.getElementById('modalStudentTitle').innerText = `Evaluation: ${s.name} (${s.class})`;
-            const tbody = document.getElementById('modalSubjectBody');
-            tbody.innerHTML = "";
+            let classStudents = students.filter(s => s.class === cls);
+            if(classStudents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">यस कक्षामा कुनै विद्यार्थी छैनन्।</td></tr>`;
+                return;
+            }
 
-            const subs = classSubjects[s.class] || ["General Evaluation"];
-            subs.forEach((sub, idx) => {
-                tbody.innerHTML += `
+            classStudents.forEach(s => {
+                let studentCas = casRecords[s.id] || {};
+                let subs = classSubjects[cls] || [];
+                
+                let totalCw = 0, totalHw = 0, totalEx = 0, count = 0;
+                subs.forEach(sub => {
+                    let m = studentCas[sub] || { cw: 3, hw: 3, ex: 3 };
+                    totalCw += Number(m.cw);
+                    totalHw += Number(m.hw);
+                    totalEx += Number(m.ex);
+                    count++;
+                });
+
+                let avgCw = count > 0 ? (totalCw / count).toFixed(1) : '0.0';
+                let avgHw = count > 0 ? (totalHw / count).toFixed(1) : '0.0';
+                let avgEx = count > 0 ? (totalEx / count).toFixed(1) : '0.0';
+
+                let overallAvg = count > 0 ? ((Number(avgCw) + Number(avgHw) + Number(avgEx)) / 3).toFixed(2) : 0;
+                let percentage = (overallAvg * 25).toFixed(1) + '%';
+                let gpaData = getNepalGPA(overallAvg);
+
+                tbody.innerHTML = tbody.innerHTML + `
                     <tr>
-                        <td><b>${sub}</b></td>
-                        <td><input type="number" min="1" max="4" step="0.1" value="3.5" id="mod_cw_${idx}"></td>
-                        <td><input type="number" min="1" max="4" step="0.1" value="3.2" id="mod_hw_${idx}"></td>
-                        <td><input type="number" min="1" max="4" step="0.1" value="3.8" id="mod_ea_${idx}"></td>
+                        <td><b>${s.roll || ''}.</b> <span class="clickable-name" onclick="openStudentModal(${s.id})">${s.name}</span></td>
+                        <td>${avgCw} / 4</td>
+                        <td>${avgHw} / 4</td>
+                        <td>${avgEx} / 4</td>
+                        <td><b>${percentage}</b></td>
+                        <td><span class="badge-present">${gpaData.gpa} GPA (${gpaData.grade})</span></td>
                     </tr>
                 `;
             });
+        }
+
+        function getNepalGPA(score4) {
+            if(score4 >= 3.6) return { gpa: '3.6 - 4.0', grade: 'A+' };
+            if(score4 >= 3.2) return { gpa: '3.2 - 3.6', grade: 'A' };
+            if(score4 >= 2.8) return { gpa: '2.8 - 3.2', grade: 'B+' };
+            if(score4 >= 2.4) return { gpa: '2.4 - 2.8', grade: 'B' };
+            if(score4 >= 2.0) return { gpa: '2.0 - 2.4', grade: 'C+' };
+            if(score4 >= 1.6) return { gpa: '1.6 - 2.0', grade: 'C' };
+            return { gpa: 'Below 1.6', grade: 'D' };
+        }
+
+        function openStudentModal(studentId) {
+            currentActiveStudentId = studentId;
+            let s = students.find(item => item.id == studentId);
+            if(!s) return;
+
+            document.getElementById('modalStudentTitle').innerText = `Subject Evaluation: ${s.name} (${s.class})`;
+            let subs = classSubjects[s.class] || [];
+            let studentCas = casRecords[s.id] || {};
+            let body = document.getElementById('modalSubjectBody');
+            body.innerHTML = '';
+
+            if(subs.length === 0) {
+                body.innerHTML = `<tr><td colspan="4" style="text-align:center;">No subjects added for this class yet. Please add subjects first.</td></tr>`;
+            } else {
+                subs.forEach(sub => {
+                    let m = studentCas[sub] || { cw: 3, hw: 3, ex: 3 };
+                    body.innerHTML = body.innerHTML + `
+                        <tr>
+                            <td><b>${sub}</b></td>
+                            <td><input type="number" min="1" max="4" step="0.5" id="modal_cw_${sub}" value="${m.cw}"></td>
+                            <td><input type="number" min="1" max="4" step="0.5" id="modal_hw_${sub}" value="${m.hw}"></td>
+                            <td><input type="number" min="1" max="4" step="0.5" id="modal_ex_${sub}" value="${m.ex}"></td>
+                        </tr>
+                    `;
+                });
+            }
 
             document.getElementById('studentSubjectModal').classList.remove('hidden');
         }
 
         function closeStudentModal() {
             document.getElementById('studentSubjectModal').classList.add('hidden');
+            currentActiveStudentId = null;
         }
 
-        function saveStudentModalMarks(shouldPrint) {
-            alert("Subject Marks Saved Successfully!");
-            if(shouldPrint) window.print();
+        function saveStudentModalMarks(printAfter = false) {
+            if(!currentActiveStudentId) return;
+            let s = students.find(item => item.id == currentActiveStudentId);
+            if(!s) return;
+
+            let subs = classSubjects[s.class] || [];
+            if(!casRecords[s.id]) casRecords[s.id] = {};
+
+            subs.forEach(sub => {
+                casRecords[s.id][sub] = {
+                    cw: document.getElementById(`modal_cw_${sub}`).value || 3,
+                    hw: document.getElementById(`modal_hw_${sub}`).value || 3,
+                    ex: document.getElementById(`modal_ex_${sub}`).value || 3
+                };
+            });
+
+            localStorage.setItem('swarnim_pwa_cas', JSON.stringify(casRecords));
+            alert('✅ Subject marks saved successfully!');
             closeStudentModal();
+            renderCasList();
         }
 
         function saveCasData() {
-            alert("Class CAS Evaluation Summary Saved!");
+            alert('✅ CAS Evaluation data is auto-synced via student subject popup.');
         }
 
-        /* EXPORT & IMPORT FUNCTIONS */
-        function populateStudentExportDropdown() {
-            const sSel = document.getElementById('exportStudentSelect');
-            if(!sSel) return;
-            sSel.innerHTML = "";
-            students.forEach(s => {
-                sSel.innerHTML += `<option value="${s.id}">${s.name} (${s.class} - Roll ${s.roll})</option>`;
-            });
-        }
+        // --- 4. STUDENT DIRECTORY ---
+        function registerStudent() {
+            let editId = document.getElementById('editStudentId').value;
+            let name = document.getElementById('regName').value;
+            let cls = document.getElementById('regClass').value;
+            let roll = document.getElementById('regRoll').value;
+            if(!name) { alert('विद्यार्थीको नाम अनिवार्य छ!'); return; }
 
-        function toggleExportOptions() {
-            const type = document.getElementById('exportTypeSelect').value;
-            document.getElementById('exportClassGroup').classList.add('hidden');
-            document.getElementById('exportMonthGroup').classList.add('hidden');
-            document.getElementById('exportDayGroup').classList.add('hidden');
-            document.getElementById('exportStudentGroup').classList.add('hidden');
-
-            if(type === 'class') document.getElementById('exportClassGroup').classList.remove('hidden');
-            if(type === 'month') document.getElementById('exportMonthGroup').classList.remove('hidden');
-            if(type === 'day') {
-                document.getElementById('exportMonthGroup').classList.remove('hidden');
-                document.getElementById('exportDayGroup').classList.remove('hidden');
+            if(editId) {
+                let index = students.findIndex(s => s.id == editId);
+                if(index !== -1) {
+                    students[index].name = name;
+                    students[index].class = cls;
+                    students[index].roll = roll;
+                    students[index].dob = document.getElementById('regDob').value;
+                    students[index].gender = document.getElementById('regGender').value;
+                    students[index].blood = document.getElementById('regBlood').value;
+                    students[index].parent = document.getElementById('regParent').value;
+                    students[index].phone = document.getElementById('regPhone').value;
+                }
+                document.getElementById('editStudentId').value = '';
+                document.getElementById('formCardTitle').innerText = '➕ Register New Student Profile';
+                document.getElementById('saveStudentBtn').innerText = 'Save Student Profile';
+                document.getElementById('cancelEditBtn').classList.add('hidden');
+            } else {
+                students.push({
+                    id: Date.now(),
+                    name: name,
+                    class: cls,
+                    roll: roll,
+                    dob: document.getElementById('regDob').value,
+                    gender: document.getElementById('regGender').value,
+                    blood: document.getElementById('regBlood').value,
+                    parent: document.getElementById('regParent').value,
+                    phone: document.getElementById('regPhone').value
+                });
             }
-            if(type === 'student') document.getElementById('exportStudentGroup').classList.remove('hidden');
+
+            localStorage.setItem('swarnim_pwa_students', JSON.stringify(students));
+            alert('✅ विद्यार्थी विवरण सफलतापूर्वक सेभ भयो!');
+            clearStudentForm();
+            renderStudentDirectory();
         }
 
-        function runCustomExport() {
-            let csvContent = "data:text/csv;charset=utf-8,ID,Name,Class,Roll,Gender,Parent,Phone\n";
+        function clearStudentForm() {
+            document.getElementById('regName').value = '';
+            document.getElementById('regRoll').value = '';
+            document.getElementById('regDob').value = '2077-05-12';
+            document.getElementById('regBlood').value = '';
+            document.getElementById('regParent').value = '';
+            document.getElementById('regPhone').value = '';
+        }
+
+        function editStudent(id) {
+            let s = students.find(item => item.id == id);
+            if(!s) return;
+
+            document.getElementById('editStudentId').value = s.id;
+            document.getElementById('regName').value = s.name;
+            document.getElementById('regClass').value = s.class;
+            document.getElementById('regRoll').value = s.roll || '';
+            document.getElementById('regDob').value = s.dob || '';
+            document.getElementById('regGender').value = s.gender || 'Male';
+            document.getElementById('regBlood').value = s.blood || '';
+            document.getElementById('regParent').value = s.parent || '';
+            document.getElementById('regPhone').value = s.phone || '';
+
+            document.getElementById('formCardTitle').innerText = '✏️ Edit Student Profile';
+            document.getElementById('saveStudentBtn').innerText = 'Update Student Profile';
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function cancelEditStudent() {
+            document.getElementById('editStudentId').value = '';
+            clearStudentForm();
+            document.getElementById('formCardTitle').innerText = '➕ Register New Student Profile';
+            document.getElementById('saveStudentBtn').innerText = 'Save Student Profile';
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+        }
+
+        function renderStudentDirectory() {
+            let tbody = document.getElementById('studentTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
             students.forEach(s => {
-                csvContent += `${s.id},"${s.name}",${s.class},${s.roll},${s.gender},"${s.parent || ''}",${s.phone || ''}\n`;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${s.roll || ''}</td>
+                        <td>${s.name}</td>
+                        <td>${s.class}</td>
+                        <td>${s.gender || ''}</td>
+                        <td>${s.parent || ''}</td>
+                        <td>${s.phone || ''}</td>
+                        <td>${s.blood || ''}</td>
+                        <td>
+                            <div style="display:flex; gap:5px;">
+                                <button class="btn btn-warning" style="padding:3px 8px; font-size:11px;" onclick="editStudent(${s.id})">Edit</button>
+                                <button class="btn btn-danger" style="padding:3px 8px; font-size:11px;" onclick="removeStudent(${s.id})">Remove</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             });
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Swarnim_Export_${Date.now()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         }
 
+        function removeStudent(id) {
+            if(confirm('के तपाईं यो विद्यार्थीलाई Remove गर्न चाहनुहुन्छ?')) {
+                students = students.filter(s => s.id !== id);
+                localStorage.setItem('swarnim_pwa_students', JSON.stringify(students));
+                renderStudentDirectory();
+            }
+        }
+
+        // --- 5. EXPORT & IMPORT ---
         function exportFullJSONBackup() {
-            const fullBackupData = {
-                students: students,
-                records: records,
-                classSubjects: classSubjects,
-                masterPwd: masterPassword,
-                backupDate: new Date().toISOString()
-            };
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullBackupData, null, 2));
-            const dlAnchorElem = document.createElement('a');
-            dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", `Swarnim_Full_Backup_${Date.now()}.json`);
-            document.body.appendChild(dlAnchorElem);
-            dlAnchorElem.click();
-            dlAnchorElem.remove();
+            let data = { students: students, records: records, health: healthRecords, cas: casRecords, subjects: classSubjects };
+            let blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = `Swarnim_System_Backup.json`;
+            a.click();
         }
 
         function importSystemBackupData(event) {
-            const fileReader = new FileReader();
-            fileReader.onload = function(e) {
+            let file = event.target.files[0];
+            if(!file) return;
+            let reader = new FileReader();
+            reader.onload = function(e) {
                 try {
-                    const parsedData = JSON.parse(e.target.result);
-                    if(parsedData.students) {
-                        students = parsedData.students;
-                        localStorage.setItem('swarnim_pwa_students', JSON.stringify(students));
-                    }
-                    if(parsedData.records) {
-                        records = parsedData.records;
-                        localStorage.setItem('swarnim_pwa_records', JSON.stringify(records));
-                    }
-                    if(parsedData.classSubjects) {
-                        classSubjects = parsedData.classSubjects;
-                        localStorage.setItem('swarnim_class_subjects', JSON.stringify(classSubjects));
-                    }
-                    alert("✅ डेटा सफलतापूर्वक इम्पोर्ट भयो! सिस्टम रिफ्रेस हुँदैछ...");
+                    let parsed = JSON.parse(e.target.result);
+                    if(parsed.students) { students = parsed.students; localStorage.setItem('swarnim_pwa_students', JSON.stringify(students)); }
+                    if(parsed.records) { records = parsed.records; localStorage.setItem('swarnim_pwa_records', JSON.stringify(records)); }
+                    if(parsed.health) { healthRecords = parsed.health; localStorage.setItem('swarnim_pwa_health', JSON.stringify(healthRecords)); }
+                    if(parsed.cas) { casRecords = parsed.cas; localStorage.setItem('swarnim_pwa_cas', JSON.stringify(casRecords)); }
+                    if(parsed.subjects) { classSubjects = parsed.subjects; localStorage.setItem('swarnim_pwa_subjects', JSON.stringify(classSubjects)); }
+                    alert('✅ सबै डेटा सफलतापूर्वक इम्पोर्ट भयो!');
                     location.reload();
                 } catch(err) {
-                    alert("❌ फाइल इम्पोर्ट गर्दा समस्या आयो! कृपया सही ब्याकअप (.json) फाइल छान्नुहोस्।");
+                    alert('❌ ब्याकअप फाइल पढ्न सकिएन!');
                 }
             };
-            fileReader.readAsText(event.target.files[0]);
+            reader.readAsText(file);
         }
 
         function updateMasterPassword() {
-            const pwd = document.getElementById('newMasterPwd').value.trim();
-            if(pwd) {
-                masterPassword = pwd;
-                localStorage.setItem('swarnim_master_pwd', masterPassword);
-                alert("Master Password Updated Successfully!");
-                document.getElementById('newMasterPwd').value = "";
-            }
+            let p = document.getElementById('newMasterPwd').value;
+            if(!p) { alert('नयाँ पासवर्ड लेख्नुहोस्!'); return; }
+            masterPassword = p;
+            localStorage.setItem('swarnim_master_pwd', masterPassword);
+            alert('✅ Master password updated successfully!');
+            document.getElementById('newMasterPwd').value = '';
         }
 
-        function printTabReport(divId, title) {
+        function printTabReport(areaId, title) {
             window.print();
         }
+
+        window.onload = function() {
+            initDateSelectors();
+            renderAttendanceList();
+        };
     </script>
 </body>
 </html>
